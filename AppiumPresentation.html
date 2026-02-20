@@ -1,0 +1,783 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Appium: Hướng Dẫn Toàn Diện & Tương Tác</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Animation Utility */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fadeIn {
+            animation: fadeIn 0.5s ease-out forwards;
+        }
+
+        /* Chosen Palette: Warm Neutral Tech */
+        /* Background: #f9fafb (Gray 50) */
+        /* Primary: #2563eb (Blue 600) */
+        /* Secondary: #4b5563 (Gray 600) */
+        /* Accent: #f59e0b (Amber 500) */
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f9fafb;
+            color: #1f2937;
+        }
+
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 350px;
+            max-height: 400px;
+        }
+
+        .nav-item.active {
+            border-bottom: 2px solid #2563eb;
+            color: #2563eb;
+            font-weight: 600;
+        }
+
+        .arch-box {
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        .arch-box:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            border-color: #2563eb;
+        }
+
+        .timeline-point {
+            transition: all 0.3s ease;
+        }
+        .timeline-point:hover .timeline-marker {
+            background-color: #2563eb;
+            transform: scale(1.2);
+        }
+
+        /* Custom Scrollbar for better UX */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #c1c1c1;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #a8a8a8;
+        }
+    </style>
+    <!-- Application Structure Plan:
+         Designed as a "Video Creator's Companion Dashboard".
+         1. Hero Section: Quick Hook & Definition (for the video intro).
+         2. Tabbed Navigation: Allows non-linear exploration of 4 main pillars:
+            - Overview & History (The "Story")
+            - Architecture (The "How it Works" - Visual Diagram)
+            - Comparison & Pros/Cons (The "Why Choose It" - Data Viz)
+            - Installation & Ecosystem (The "How to Start" - Checklist)
+         3. Interactive Elements:
+            - Architecture Diagram: Clickable blocks to reveal technical details (perfect for explaining slide-by-slide).
+            - Comparison Radar Chart: Visual proof of Appium's strengths/weaknesses vs Native tools.
+            - Timeline: Vertical interactive history.
+         This structure allows the user to record screen segments or copy content directly for slides.
+    -->
+    <!-- Visualization & Content Choices:
+         - Radar Chart: Chosen to compare multi-dimensional attributes (Speed, Ease, Platform Support) of Appium vs Espresso vs XCTest.
+         - Flow Diagram (HTML/CSS): Represents Client-Server architecture. Replaces static images to allow interactive deep-dives into each component.
+         - Timeline: Vertical list for History to show evolution clearly.
+         - Checklist: For Installation to provide actionable steps.
+         - Use SVGs for icons
+         - All other visuals built with Chart.js or HTML/CSS Shapes.
+    -->
+</head>
+<body class="min-h-screen flex flex-col">
+
+    <!-- Header -->
+    <header class="fixed top-0 left-0 w-full z-40 bg-white/90 backdrop-blur-sm shadow-sm px-6 py-4 flex justify-between items-center transition-all duration-300 hover:opacity-100 opacity-50 hover:bg-white text-gray-800">
+        <div class="flex items-center">
+            <span class="mr-3 text-blue-600">
+                <svg role="img" viewBox="0 0 24 24" class="w-8 h-8" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><title>Appium</title><path d="M11.923 0C5.937 0 .976 4.384.07 10.115a11.943 11.943 0 0 1 7.645-2.754 11.982 11.982 0 0 1 9.43 4.58 11.942 11.942 0 0 0 1.015-8.769 12.066 12.066 0 0 0-.626-1.772l-.003-.008A11.968 11.968 0 0 0 11.923 0Zm7.721 2.754A12.002 12.002 0 0 1 9.398 16.521a12.082 12.082 0 0 0 9.02 5.617c.24-.119.766-.51 1.224-.89A11.971 11.971 0 0 0 23.995 12a11.98 11.98 0 0 0-4.35-9.247zM9.33 7.557a12.159 12.159 0 0 0-2.647.401A11.944 11.944 0 0 0 .01 12.595l-.005.006c.021.427.065.853.131 1.275C1.037 19.61 6 24 11.991 24c1.45 0 2.887-.26 4.243-.773a12 12 0 0 1-6.905-15.67z"/></svg>
+            </span>
+            <h1 class="text-lg font-bold">Appium</h1>
+        </div>
+        <div class="text-sm font-mono text-gray-500 bg-gray-100 px-3 py-1 rounded-full border border-gray-200">
+            Slide <span id="current-slide-num">1</span> / <span id="total-slide-num">13</span>
+        </div>
+    </header>
+
+    <!-- Presentation Controls (Fixed Bottom) -->
+    <div class="fixed bottom-6 right-6 flex space-x-4 z-50">
+        <button id="btn-prev" onclick="navigateSlide(-1)" class="bg-gray-800 text-white p-3 rounded-full shadow-lg hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all transform hover:scale-110">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+            </svg>
+        </button>
+        <button id="btn-next" onclick="navigateSlide(1)" class="bg-blue-600 text-white p-3 rounded-full shadow-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all transform hover:scale-110">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+            </svg>
+        </button>
+    </div>
+
+    <!-- Main Content -->
+    <main id="presentation-container" class="flex-grow w-full h-screen flex flex-col items-center justify-center overflow-hidden bg-gray-50 relative">
+        
+        <!-- SLIDE 1: Title & Intro -->
+        <div id="slide-0" class="slide w-full max-w-5xl p-8 text-center animate-fadeIn">
+            <div class="mb-8 flex justify-center">
+                 <div class="text-blue-600">
+                    <svg role="img" viewBox="0 0 24 24" class="w-32 h-32" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><title>Appium</title><path d="M11.923 0C5.937 0 .976 4.384.07 10.115a11.943 11.943 0 0 1 7.645-2.754 11.982 11.982 0 0 1 9.43 4.58 11.942 11.942 0 0 0 1.015-8.769 12.066 12.066 0 0 0-.626-1.772l-.003-.008A11.968 11.968 0 0 0 11.923 0Zm7.721 2.754A12.002 12.002 0 0 1 9.398 16.521a12.082 12.082 0 0 0 9.02 5.617c.24-.119.766-.51 1.224-.89A11.971 11.971 0 0 0 23.995 12a11.98 11.98 0 0 0-4.35-9.247zM9.33 7.557a12.159 12.159 0 0 0-2.647.401A11.944 11.944 0 0 0 .01 12.595l-.005.006c.021.427.065.853.131 1.275C1.037 19.61 6 24 11.991 24c1.45 0 2.887-.26 4.243-.773a12 12 0 0 1-6.905-15.67z"/></svg>
+                 </div>
+            </div>
+            <h1 class="text-5xl font-bold text-gray-900 mb-4">Appium: Hướng Dẫn Toàn Diện</h1>
+            <h2 class="text-2xl text-blue-600 font-semibold mb-12">Kiểm thử & Đảm bảo chất lượng phần mềm</h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 text-left max-w-3xl mx-auto bg-white p-8 rounded-xl shadow-lg border-t-4 border-blue-500">
+                <div>
+                    <p class="text-gray-500 text-sm uppercase tracking-wider font-bold mb-1">Giảng viên hướng dẫn</p>
+                    <p class="text-xl font-bold text-gray-800">ThS. Trịnh Công Nhựt</p>
+                    <p class="text-gray-600 text-sm mt-1">HUTECH University</p>
+                </div>
+                <div>
+                    <p class="text-gray-500 text-sm uppercase tracking-wider font-bold mb-1">Nhóm sinh viên thực hiện</p>
+                    <ul class="text-lg text-gray-800 space-y-1">
+                        <li class="flex items-center"><span class="w-2 h-2 bg-blue-500 rounded-full mr-2"></span>Trần Tuấn Anh</li>
+                        <li class="flex items-center"><span class="w-2 h-2 bg-blue-500 rounded-full mr-2"></span>Phan Chí Cơ</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 2: What is Appium -->
+        <div id="slide-1" class="slide w-full max-w-5xl p-8 hidden">
+            <h2 class="text-4xl font-bold text-gray-800 mb-8 border-b-4 border-blue-500 inline-block pb-2">Appium là gì?</h2>
+            <p class="text-2xl text-gray-700 leading-relaxed mb-12">
+                "Appium là công cụ <strong class="text-blue-600">Open Source</strong> dùng để tự động hóa kiểm thử các ứng dụng di động (Mobile Apps), hỗ trợ đa nền tảng và đa ngôn ngữ."
+            </p>
+            <div class="grid grid-cols-3 gap-6">
+                <!-- Feature 1 -->
+                <div class="bg-white p-6 rounded-xl shadow-md border-t-4 border-indigo-500 hover:shadow-xl transition-shadow duration-300">
+                    <div class="text-indigo-600 mb-4 w-12 h-12">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-12 h-12">
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M12 21a9.004 9.004 0 008.716-6.747M12 21a9.004 9.004 0 01-8.716-6.747M12 21c2.485 0 4.5-4.03 4.5-9S14.485 3 12 3m0 18c-2.485 0-4.5-4.03-4.5-9S9.515 3 12 3m0 0a8.997 8.997 0 017.843 4.582M12 3a8.997 8.997 0 00-7.843 4.582m15.686 0A11.953 11.953 0 0112 10.5c-2.998 0-5.74-1.1-7.843-2.918m15.686 0A8.959 8.959 0 0121 12c0 .778-.099 1.533-.284 2.253m0 0A17.919 17.919 0 0112 16.5c-3.162 0-6.133-.815-8.716-2.247m0 0A9.015 9.015 0 013 12c0-1.605.42-3.113 1.157-4.418" />
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-bold mb-2">Cross-Platform</h3>
+                    <p class="text-gray-600">Viết 1 test chạy trên cả iOS, Android và Windows.</p>
+                </div>
+                <!-- Feature 2 -->
+                <div class="bg-white p-6 rounded-xl shadow-md border-t-4 border-purple-500 hover:shadow-xl transition-shadow duration-300">
+                    <div class="text-purple-600 mb-4 w-12 h-12">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-12 h-12">
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M17.25 6.75L22.5 12l-5.25 5.25m-10.5 0L1.5 12l5.25-5.25m7.5-3l-4.5 16.5" />
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-bold mb-2">Multi-Language</h3>
+                    <p class="text-gray-600">Hỗ trợ Java, Python, JS, C#, Ruby, PHP...</p>
+                </div>
+                <!-- Feature 3 -->
+                <div class="bg-white p-6 rounded-xl shadow-md border-t-4 border-green-500 hover:shadow-xl transition-shadow duration-300">
+                    <div class="text-green-600 mb-4 w-12 h-12">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-12 h-12">
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 18.75a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h6m-9 0H3.375a1.125 1.125 0 01-1.125-1.125V14.25m17.25 4.5a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h1.125c.621 0 1.129-.504 1.09-1.124a17.902 17.902 0 00-3.213-9.193 2.056 2.056 0 00-1.58-.86H14.25M16.5 18.75h-2.25m0-11.177v-.958c0-.568-.422-1.048-.987-1.106a48.554 48.554 0 00-10.026 0 1.106 1.106 0 00-.987 1.106v7.635m12-6.677v6.677m0 4.5v-4.5m0 0h-12" />
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-bold mb-2">Standard API</h3>
+                    <p class="text-gray-600">Sử dụng chuẩn W3C WebDriver (như Selenium).</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 3: History -->
+        <div id="slide-2" class="slide w-full max-w-5xl p-8 hidden">
+            <div class="flex items-center mb-8">
+                <h2 class="text-4xl font-bold text-gray-800 mr-4">Lịch Sử Hình Thành</h2>
+                <div class="text-gray-400">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-10 h-10">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                </div>
+            </div>
+            <div class="bg-white p-8 rounded-xl shadow-lg overflow-y-auto max-h-[60vh]" id="history-container">
+                <!-- Injected via JS -->
+            </div>
+        </div>
+
+        <!-- SLIDE 4: Philosophy -->
+        <div id="slide-3" class="slide w-full max-w-5xl p-8 hidden">
+            <h2 class="text-4xl font-bold text-gray-800 mb-8">Triết Lý Cốt Lõi</h2>
+            <div class="grid grid-cols-1 gap-6">
+                <div class="flex items-center p-6 bg-white rounded-lg shadow hover:shadow-md transition">
+                    <div class="flex-shrink-0 h-12 w-12 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center mr-6">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                    </div>
+                    <p class="text-xl text-gray-700">Test đúng ứng dụng bạn sẽ release (không cần compile lại hay chèn SDK lạ).</p>
+                </div>
+                <div class="flex items-center p-6 bg-white rounded-lg shadow hover:shadow-md transition">
+                    <div class="flex-shrink-0 h-12 w-12 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center mr-6">
+                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                           <path stroke-linecap="round" stroke-linejoin="round" d="M17.25 6.75L22.5 12l-5.25 5.25m-10.5 0L1.5 12l5.25-5.25m7.5-3l-4.5 16.5" />
+                         </svg>
+                    </div>
+                    <p class="text-xl text-gray-700">Viết test bằng bất kỳ ngôn ngữ/framework nào bạn muốn.</p>
+                </div>
+                <div class="flex items-center p-6 bg-white rounded-lg shadow hover:shadow-md transition">
+                    <div class="flex-shrink-0 h-12 w-12 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center mr-6">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M13.19 8.688a4.5 4.5 0 011.242 7.244l-4.5 4.5a4.5 4.5 0 01-6.364-6.364l1.757-1.757m13.35-.622l1.757-1.757a4.5 4.5 0 00-6.364-6.364l-4.5 4.5a4.5 4.5 0 001.242 7.244" />
+                        </svg>
+                    </div>
+                    <p class="text-xl text-gray-700">Sử dụng giao diện chuẩn automation (WebDriver).</p>
+                </div>
+                <div class="flex items-center p-6 bg-white rounded-lg shadow hover:shadow-md transition">
+                    <div class="flex-shrink-0 h-12 w-12 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center mr-6">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M12 21a9.004 9.004 0 008.716-6.747M12 21a9.004 9.004 0 01-8.716-6.747M12 21c2.485 0 4.5-4.03 4.5-9S14.485 3 12 3m0 18c-2.485 0-4.5-4.03-4.5-9S9.515 3 12 3m0 0a8.997 8.997 0 017.843 4.582M12 3a8.997 8.997 0 00-7.843 4.582m15.686 0A11.953 11.953 0 0112 10.5c-2.998 0-5.74-1.1-7.843-2.918m15.686 0A8.959 8.959 0 0121 12c0 .778-.099 1.533-.284 2.253m0 0A17.919 17.919 0 0112 16.5c-3.162 0-6.133-.815-8.716-2.247m0 0A9.015 9.015 0 013 12c0-1.605.42-3.113 1.157-4.418" />
+                        </svg>
+                    </div>
+                    <p class="text-xl text-gray-700">Mã nguồn mở (Open Source) miễn phí.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 5: Architecture Diagram -->
+        <div id="slide-4" class="slide w-full max-w-6xl p-4 hidden">
+            <h2 class="text-3xl font-bold text-gray-800 mb-2 text-center">Kiến Trúc Hoạt Động</h2>
+            <p class="text-center text-gray-500 mb-8">Mô hình Client - Server - Device</p>
+            
+            <div class="flex items-center justify-center gap-4 py-8 bg-white rounded-xl shadow-xl border border-gray-200 p-8">
+                <!-- Client -->
+                <div onclick="showArchDetail('client')" class="arch-box bg-gray-50 border-2 border-gray-300 p-6 rounded-xl w-1/4 text-center hover:border-blue-500 relative cursor-pointer transform hover:scale-105 transition group">
+                    <div class="mb-3 text-gray-700 group-hover:text-blue-600 transition-colors mx-auto w-16 h-16">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-16 h-16 mx-auto">
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M7.5 7.5L3 12m0 0l4.5 4.5M3 12h18M16.5 7.5L21 12m0 0l-4.5 4.5" />
+                        </svg>
+                    </div>
+                    <div class="font-bold text-xl text-gray-800">Client</div>
+                    <div class="text-sm text-gray-500 mt-1">Test Script</div>
+                </div>
+
+                <!-- Arrow -->
+                <div class="flex flex-col items-center px-4">
+                    <span class="text-xs font-mono text-gray-500 bg-gray-100 px-2 py-1 rounded mb-1">JSON / HTTP</span>
+                    <svg class="w-8 h-8 text-gray-300 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+                </div>
+
+                <!-- Server -->
+                <div onclick="showArchDetail('server')" class="arch-box bg-gray-50 border-2 border-gray-300 p-6 rounded-xl w-1/4 text-center hover:border-blue-600 cursor-pointer transform hover:scale-105 transition group">
+                    <div class="mb-3 text-gray-700 group-hover:text-blue-600 transition-colors mx-auto w-16 h-16">
+                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-16 h-16 mx-auto">
+                           <path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75" />
+                         </svg>
+                    </div>
+                    <div class="font-bold text-xl text-gray-800">Server</div>
+                    <div class="text-sm text-gray-500 mt-1">Node.js API</div>
+                </div>
+
+                <!-- Arrow -->
+                <div class="flex flex-col items-center px-4">
+                    <span class="text-xs font-mono text-gray-500 bg-gray-100 px-2 py-1 rounded mb-1">W3C WebDriver</span>
+                    <svg class="w-8 h-8 text-gray-300 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+                </div>
+
+                <!-- Driver -->
+                <div onclick="showArchDetail('driver')" class="arch-box bg-gray-50 border-2 border-gray-300 p-6 rounded-xl w-1/4 text-center hover:border-green-500 cursor-pointer transform hover:scale-105 transition group">
+                    <div class="mb-3 text-gray-700 group-hover:text-green-600 transition-colors mx-auto w-16 h-16">
+                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-16 h-16 mx-auto">
+                           <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 1.5H8.25A2.25 2.25 0 006 3.75v16.5a2.25 2.25 0 002.25 2.25h7.5A2.25 2.25 0 0018 20.25V3.75a2.25 2.25 0 00-2.25-2.25H13.5m-3 0V3h3V1.5m-3 0h3m-3 18.75h3" />
+                         </svg>
+                    </div>
+                    <div class="font-bold text-xl text-gray-800">Driver</div>
+                    <div class="text-sm text-gray-500 mt-1">Ui / XC</div>
+                </div>
+            </div>
+
+             <!-- Detail Panel -->
+             <div id="arch-detail-panel" class="mt-8 bg-blue-50 border-l-4 border-blue-500 p-6 rounded-r-lg hidden transition-all max-w-4xl mx-auto">
+                <h3 id="arch-detail-title" class="font-bold text-2xl text-blue-800 mb-2"></h3>
+                <p id="arch-detail-desc" class="text-xl text-gray-800"></p>
+            </div>
+        </div>
+
+        <!-- SLIDE 6: How it works text -->
+        <div id="slide-5" class="slide w-full max-w-5xl p-8 hidden">
+             <h2 class="text-4xl font-bold text-gray-800 mb-8">Quy Trình Xử Lý</h2>
+             <div class="bg-white p-8 rounded-xl shadow-lg">
+                <ol class="space-y-6 relative border-l-2 border-gray-200 ml-4">
+                    <li class="pl-8 relative">
+                        <span class="absolute -left-[9px] top-1 w-4 h-4 rounded-full bg-blue-500 border-2 border-white"></span>
+                        <h4 class="font-bold text-xl text-gray-800">Bước 1: Client gửi Request</h4>
+                        <p class="text-gray-600 mt-1">Test script gửi lệnh (ví dụ: `click`) dưới dạng HTTP Request tới Server.</p>
+                    </li>
+                    <li class="pl-8 relative">
+                        <span class="absolute -left-[9px] top-1 w-4 h-4 rounded-full bg-blue-500 border-2 border-white"></span>
+                        <h4 class="font-bold text-xl text-gray-800">Bước 2: Server Phân Tích</h4>
+                        <p class="text-gray-600 mt-1">Appium Server nhận request, xác định session và driver tương ứng (Android/iOS).</p>
+                    </li>
+                    <li class="pl-8 relative">
+                        <span class="absolute -left-[9px] top-1 w-4 h-4 rounded-full bg-blue-500 border-2 border-white"></span>
+                        <h4 class="font-bold text-xl text-gray-800">Bước 3: Driver Thực Thi</h4>
+                        <p class="text-gray-600 mt-1">Driver chuyển lệnh Appium thành lệnh native (UiAutomator2/XCUITest) để điều khiển thiết bị.</p>
+                    </li>
+                    <li class="pl-8 relative">
+                        <span class="absolute -left-[9px] top-1 w-4 h-4 rounded-full bg-blue-500 border-2 border-white"></span>
+                        <h4 class="font-bold text-xl text-gray-800">Bước 4: Phản Hồi</h4>
+                        <p class="text-gray-600 mt-1">Kết quả được trả ngược lại theo chuỗi: Device -> Driver -> Server -> Client.</p>
+                    </li>
+                </ol>
+             </div>
+        </div>
+
+        <!-- SLIDE 7: Drivers List -->
+        <div id="slide-6" class="slide w-full max-w-5xl p-8 hidden">
+            <h2 class="text-4xl font-bold text-gray-800 mb-8">Các Drivers Phổ Biến</h2>
+            <div class="grid grid-cols-2 gap-8">
+                <div class="bg-green-50 p-6 rounded-xl border border-green-200">
+                    <h3 class="text-2xl font-bold text-green-700 mb-2">Android</h3>
+                    <ul class="list-disc list-inside text-lg text-gray-700">
+                        <li><strong>UiAutomator2</strong> (Google recommended)</li>
+                        <li>Espresso (Beta - Gray box)</li>
+                    </ul>
+                </div>
+                <div class="bg-gray-100 p-6 rounded-xl border border-gray-300">
+                    <h3 class="text-2xl font-bold text-gray-800 mb-2">iOS</h3>
+                    <ul class="list-disc list-inside text-lg text-gray-700">
+                        <li><strong>XCUITest</strong> (Standard apple automation)</li>
+                    </ul>
+                </div>
+                <div class="bg-blue-50 p-6 rounded-xl border border-blue-200">
+                    <h3 class="text-2xl font-bold text-blue-700 mb-2">Windows PC</h3>
+                    <ul class="list-disc list-inside text-lg text-gray-700">
+                        <li><strong>WinAppDriver</strong> (Của Microsoft)</li>
+                    </ul>
+                </div>
+                <div class="bg-purple-50 p-6 rounded-xl border border-purple-200">
+                    <h3 class="text-2xl font-bold text-purple-700 mb-2">Mac OS</h3>
+                    <ul class="list-disc list-inside text-lg text-gray-700">
+                        <li><strong>MacDriver</strong></li>
+                    </ul>
+                </div>
+                <div class="bg-indigo-50 p-6 rounded-xl border border-indigo-200 col-span-2 md:col-span-1">
+                    <h3 class="text-2xl font-bold text-indigo-700 mb-2">Flutter</h3>
+                    <ul class="list-disc list-inside text-lg text-gray-700">
+                        <li><strong>Flutter Driver</strong> (Integration Test)</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 8: Comparison Chart -->
+        <div id="slide-7" class="slide w-full max-w-5xl p-8 hidden">
+            <h2 class="text-3xl font-bold text-gray-800 mb-4 text-center">So Sánh: Appium vs Native Tools</h2>
+            <div class="bg-white p-4 rounded-xl shadow-lg h-[500px] w-full flex items-center justify-center">
+                <canvas id="comparisonChart"></canvas>
+            </div>
+        </div>
+
+        <!-- SLIDE 9: Pros & Cons -->
+        <div id="slide-8" class="slide w-full max-w-6xl p-8 hidden text-center">
+            <h2 class="text-4xl font-bold text-gray-800 mb-12">Ưu & Nhược Điểm</h2>
+            <div class="grid grid-cols-2 gap-12 text-left">
+                <div class="bg-green-50 p-8 rounded-2xl shadow border-t-8 border-green-500">
+                    <h3 class="text-3xl font-bold text-green-700 mb-6">Ưu Điểm (Pros)</h3>
+                    <ul class="space-y-4 text-lg">
+                        <li class="flex items-start">
+                            <span class="text-green-600 font-bold mr-3 mt-1">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6">
+                                  <path fill-rule="evenodd" d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12zm13.36-1.814a.75.75 0 10-1.22-.872l-3.236 4.53L9.53 12.22a.75.75 0 00-1.06 1.06l2.25 2.25a.75.75 0 001.14-.094l3.75-5.25z" clip-rule="evenodd" />
+                                </svg>
+                            </span> 
+                            <span>Code 1 lần, chạy nhiều nơi.</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-green-600 font-bold mr-3 mt-1">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6">
+                                  <path fill-rule="evenodd" d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12zm13.36-1.814a.75.75 0 10-1.22-.872l-3.236 4.53L9.53 12.22a.75.75 0 00-1.06 1.06l2.25 2.25a.75.75 0 001.14-.094l3.75-5.25z" clip-rule="evenodd" />
+                                </svg>
+                            </span> 
+                            <span>Tự do chọn ngôn ngữ (Java/JS/...).</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-green-600 font-bold mr-3 mt-1">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6">
+                                  <path fill-rule="evenodd" d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12zm13.36-1.814a.75.75 0 10-1.22-.872l-3.236 4.53L9.53 12.22a.75.75 0 00-1.06 1.06l2.25 2.25a.75.75 0 001.14-.094l3.75-5.25z" clip-rule="evenodd" />
+                                </svg>
+                            </span> 
+                            <span>Cộng đồng hỗ trợ cực lớn.</span>
+                        </li>
+                    </ul>
+                </div>
+                <div class="bg-red-50 p-8 rounded-2xl shadow border-t-8 border-red-500">
+                    <h3 class="text-3xl font-bold text-red-700 mb-6">Nhược Điểm (Cons)</h3>
+                    <ul class="space-y-4 text-lg">
+                        <li class="flex items-start">
+                            <span class="text-red-600 font-bold mr-3 mt-1">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6">
+                                  <path fill-rule="evenodd" d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25zm-1.72 6.97a.75.75 0 10-1.06 1.06L10.94 12l-1.72 1.72a.75.75 0 101.06 1.06L12 13.06l1.72 1.72a.75.75 0 101.06-1.06L13.06 12l1.72-1.72a.75.75 0 10-1.06-1.06L12 10.94l-1.72-1.72z" clip-rule="evenodd" />
+                                </svg>
+                            </span> 
+                            <span>Tốc độ chậm hơn Native thuần.</span>
+                        </li>
+                        <li class="flex items-start">
+                             <span class="text-red-600 font-bold mr-3 mt-1">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6">
+                                  <path fill-rule="evenodd" d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25zm-1.72 6.97a.75.75 0 10-1.06 1.06L10.94 12l-1.72 1.72a.75.75 0 101.06 1.06L12 13.06l1.72 1.72a.75.75 0 101.06-1.06L13.06 12l1.72-1.72a.75.75 0 10-1.06-1.06L12 10.94l-1.72-1.72z" clip-rule="evenodd" />
+                                </svg>
+                            </span> 
+                            <span>Cài đặt môi trường phức tạp.</span>
+                        </li>
+                        <li class="flex items-start">
+                             <span class="text-red-600 font-bold mr-3 mt-1">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6">
+                                  <path fill-rule="evenodd" d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25zm-1.72 6.97a.75.75 0 10-1.06 1.06L10.94 12l-1.72 1.72a.75.75 0 101.06 1.06L12 13.06l1.72 1.72a.75.75 0 101.06-1.06L13.06 12l1.72-1.72a.75.75 0 10-1.06-1.06L12 10.94l-1.72-1.72z" clip-rule="evenodd" />
+                                </svg>
+                            </span> 
+                            <span>Đôi khi không ổn định (flaky).</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 10: Summary Table -->
+        <div id="slide-9" class="slide w-full max-w-6xl p-8 hidden">
+            <h2 class="text-3xl font-bold text-gray-800 mb-8 text-center">Bảng Tổng Hợp So Sánh</h2>
+            <div class="bg-white rounded-xl shadow-xl overflow-hidden text-lg">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-100">
+                        <tr>
+                            <th class="px-8 py-5 text-left font-bold text-gray-600 uppercase">Tiêu chí</th>
+                            <th class="px-8 py-5 text-left font-bold text-blue-600 uppercase">Appium</th>
+                            <th class="px-8 py-5 text-left font-bold text-red-500 uppercase">Native (Espresso/XC)</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-200">
+                        <tr>
+                            <td class="px-8 py-5 font-medium">Ngôn ngữ</td>
+                            <td class="px-8 py-5">Đa dạng (Java, Python...)</td>
+                            <td class="px-8 py-5">Đặc thù (Kotlin/Swift)</td>
+                        </tr>
+                        <tr>
+                            <td class="px-8 py-5 font-medium">Tốc độ</td>
+                            <td class="px-8 py-5 text-yellow-600">Trung bình</td>
+                            <td class="px-8 py-5 text-green-600 font-bold">Rất nhanh</td>
+                        </tr>
+                        <tr>
+                            <td class="px-8 py-5 font-medium">Truy cập Source</td>
+                            <td class="px-8 py-5 text-green-600 font-bold">Black-box (Không cần)</td>
+                            <td class="px-8 py-5 text-gray-600">White-box (Cần)</td>
+                        </tr>
+                        <tr>
+                            <td class="px-8 py-5 font-medium">Kiến trúc</td>
+                            <td class="px-8 py-5">Client-Server</td>
+                            <td class="px-8 py-5">Chạy trực tiếp trên App</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- SLIDE 11: Prerequisites -->
+        <div id="slide-10" class="slide w-full max-w-5xl p-8 hidden">
+            <h2 class="text-4xl font-bold text-gray-800 mb-4">Cài Đặt: Yêu Cầu Cần Có</h2>
+            <p class="text-xl text-gray-500 mb-12">Những thành phần bắt buộc trước khi bắt đầu.</p>
+            <div class="grid grid-cols-2 gap-8">
+                <div class="bg-white p-6 rounded-xl shadow border-l-8 border-yellow-400 flex items-center hover:bg-yellow-50 transition">
+                    <div class="mr-6 text-yellow-500 w-16 h-16">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-16 h-16">
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z" />
+                        </svg>
+                    </div>
+                    <div>
+                        <h3 class="text-2xl font-bold">Node.js</h3>
+                        <p class="text-gray-600">Để chạy Appium Server.</p>
+                    </div>
+                </div>
+                <div class="bg-white p-6 rounded-xl shadow border-l-8 border-orange-500 flex items-center hover:bg-orange-50 transition">
+                    <div class="mr-6 text-orange-500 w-16 h-16">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-16 h-16">
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M9.75 3.104v5.714a2.25 2.25 0 01-.659 1.591L5 14.5M9.75 3.104c-.251.023-.501.05-.75.082m.75-.082a24.301 24.301 0 014.5 0m0 0v5.714c0 .597.237 1.17.659 1.591L19.8 15.3M14.25 3.104c.251.023.501.05.75.082M19.8 15.3l-1.57.393A9.065 9.065 0 0112 15a9.065 9.065 0 00-6.23-.693L5 14.5m14.8.8l1.402 1.402c1.232 1.232.65 3.318-1.067 3.611A48.309 48.309 0 0112 21c-2.773 0-5.491-1.23-7.732-3.135a5.022 5.022 0 01-.713-3.732" />
+                        </svg>
+                    </div>
+                    <div>
+                        <h3 class="text-2xl font-bold">Java JDK</h3>
+                        <p class="text-gray-600">Cần thiết cho Android.</p>
+                    </div>
+                </div>
+                <div class="bg-white p-6 rounded-xl shadow border-l-8 border-green-500 flex items-center hover:bg-green-50 transition">
+                    <div class="mr-6 text-green-500 w-16 h-16">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-16 h-16">
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v6m3-3H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                    </div>
+                    <div>
+                        <h3 class="text-2xl font-bold">Android SDK</h3>
+                        <p class="text-gray-600">Máy ảo & ADB Tools.</p>
+                    </div>
+                </div>
+                <div class="bg-white p-6 rounded-xl shadow border-l-8 border-gray-500 flex items-center hover:bg-gray-50 transition">
+                    <div class="mr-6 text-gray-700 w-16 h-16">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-16 h-16">
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M9 17.25v1.007a3 3 0 01-.879 2.122L7.5 21h9l-.621-.621A3 3 0 0115 18.257V17.25m6-12V15a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 15V5.25m18 0A2.25 2.25 0 0018.75 3H5.25A2.25 2.25 0 003 5.25m18 0V12a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 12V5.25" />
+                        </svg>
+                    </div>
+                    <div>
+                        <h3 class="text-2xl font-bold">Xcode</h3>
+                        <p class="text-gray-600">Chỉ cần nếu test iOS (Mac only).</p>
+                    </div>
+                </div>
+                <!-- Appium Inspector -->
+                <div class="bg-white p-6 rounded-xl shadow border-l-8 border-blue-500 flex items-center hover:bg-blue-50 transition col-span-2 md:col-span-1">
+                    <div class="mr-6 text-blue-500 w-16 h-16">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-16 h-16">
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+                        </svg>
+                    </div>
+                    <div>
+                        <h3 class="text-2xl font-bold">Appium Inspector</h3>
+                        <p class="text-gray-600">Tool soi Element bắt buộc.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 12: Installation Steps -->
+        <div id="slide-11" class="slide w-full max-w-5xl p-8 hidden">
+            <h2 class="text-4xl font-bold text-gray-800 mb-8">Các Bước Cài Đặt (Terminal)</h2>
+            <div class="bg-gray-900 text-gray-100 p-8 rounded-xl font-mono text-xl shadow-2xl leading-relaxed">
+                <p class="text-gray-500 mb-2"># 1. Cài đặt Server</p>
+                <p class="text-green-400 mb-6">$ npm install -g appium</p>
+
+                <p class="text-gray-500 mb-2"># 2. Cài đặt Driver (Android)</p>
+                <p class="text-green-400 mb-6">$ appium driver install uiautomator2</p>
+
+                <p class="text-gray-500 mb-2"># 3. Khởi chạy Server</p>
+                <p class="text-green-400 mb-6">$ appium</p>
+                
+                <div class="text-yellow-600 text-base italic mt-8 border-t border-gray-700 pt-4 flex items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6 mr-2">
+                      <path fill-rule="evenodd" d="M9.401 3.003c1.155-2 4.043-2 5.197 0l7.355 12.748c1.154 2-.29 4.5-2.599 4.5H4.645c-2.309 0-3.752-2.5-2.598-4.5L9.4 3.003zM12 8.25a.75.75 0 01.75.75v3.75a.75.75 0 01-1.5 0V9a.75.75 0 01.75-.75zm0 8.25a.75.75 0 100-1.5.75.75 0 000 1.5z" clip-rule="evenodd" />
+                    </svg>
+                    <span>Lưu ý: Thiết lập biến môi trường JAVA_HOME và ANDROID_HOME!</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 13: Code Example -->
+        <div id="slide-12" class="slide w-full max-w-6xl p-8 hidden">
+            <div class="flex flex-col items-center justify-center h-full">
+                <h2 class="text-6xl font-bold text-gray-800 mb-8">Live Demo</h2>
+                <div class="text-blue-500 animate-pulse mb-8">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-48 h-48">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.348a1.125 1.125 0 010 1.971l-11.54 6.347a1.125 1.125 0 01-1.667-.985V5.653z" />
+                    </svg>
+                </div>
+                <p class="text-2xl text-gray-600">Testing Android Emulator</p>
+            </div>
+        </div>
+
+        <!-- SLIDE 14: Thank You -->
+        <div id="slide-13" class="slide w-full max-w-5xl p-8 hidden text-center">
+            <h2 class="text-6xl font-bold text-gray-800 mb-12 animate-bounce">Thank You!</h2>
+            <div class="flex justify-center mb-12">
+                 <div class="text-blue-500">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-32 h-32">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
+                    </svg>
+                 </div>
+            </div>
+            <h3 class="text-4xl font-bold text-blue-600 mb-8">Q & A</h3>
+            <p class="text-2xl text-gray-600 mb-4">Mọi thắc mắc mời mọi người bình luận, nhóm sẽ trả lời trong thời gian sớm nhất.</p>
+            <div class="mt-12 text-gray-500">
+                <p class="font-bold">HUTECH University</p>
+                <p>Khoa Công Nghệ Thông Tin</p>
+            </div>
+        </div>
+
+    </main>
+
+    <script>
+        // --- DATA & STATE MANAGEMENT ---
+        const historyData = [
+            { year: '2011', title: 'Khởi đầu', desc: 'Dan Cuellar tạo ra "iOSAuto" bằng C#.' },
+            { year: '2012', title: 'Open Source', desc: 'Jason Huggins khuyến khích mở mã nguồn. Tên "Appium" ra đời.' },
+            { year: '2013', title: 'Sauce Labs', desc: 'Standard hóa theo Selenium WebDriver.' },
+            { year: '2014', title: 'Phổ biến', desc: 'Trở thành công cụ số 1 cho Mobile Automation.' },
+            { year: '2023', title: 'Appium 2.0', desc: 'Kiến trúc Driver/Plugin tách biệt. Chính thức Release.' }
+        ];
+
+        const archDetails = {
+            'client': {
+                title: 'Client (Code của bạn)',
+                desc: 'Nơi bạn viết kịch bản test. Dùng thư viện Appium Client (Java/Python...) để gửi lệnh.'
+            },
+            'server': {
+                title: 'Appium Server',
+                desc: 'Trung gian nhận lệnh JSON, hiểu và chuyển tiếp cho Driver phù hợp (Android/iOS).'
+            },
+            'driver': {
+                title: 'Driver (Native)',
+                desc: 'Thực thi lệnh trên thiết bị thật. VD: UiAutomator2 cho Android, XCUITest cho iOS.'
+            }
+        };
+
+        // --- INIT ---
+        document.addEventListener('DOMContentLoaded', () => {
+            renderHistory();
+            initCharts();
+            // Start at Slide 0
+            showSlide(0);
+            
+            // Keyboard Navigation
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'ArrowRight' || e.key === 'Space') navigateSlide(1);
+                if (e.key === 'ArrowLeft') navigateSlide(-1);
+            });
+        });
+
+        // --- NAVIGATION LOGIC ---
+        const totalSlides = 14; // 0 to 13
+        let currentSlideIndex = 0;
+
+        function navigateSlide(direction) {
+            const newIndex = currentSlideIndex + direction;
+            if (newIndex >= 0 && newIndex < totalSlides) {
+                showSlide(newIndex);
+            }
+        }
+
+        function updateNavButtons() {
+            const prevBtn = document.getElementById('btn-prev');
+            const nextBtn = document.getElementById('btn-next');
+            
+            if(prevBtn) prevBtn.disabled = currentSlideIndex === 0;
+            if(nextBtn) nextBtn.disabled = currentSlideIndex === totalSlides - 1;
+        }
+
+        function showSlide(index) {
+            currentSlideIndex = index;
+            
+            // Update Header Counter
+            const currentNum = document.getElementById('current-slide-num');
+            const totalNum = document.getElementById('total-slide-num');
+            if(currentNum) currentNum.textContent = index + 1;
+            if(totalNum) totalNum.textContent = totalSlides;
+
+            // Hide all slides
+            document.querySelectorAll('.slide').forEach(el => {
+                el.classList.add('hidden');
+                el.classList.remove('animate-fadeIn'); // reset animation
+            });
+
+            // Show target slide
+            const activeSlide = document.getElementById(`slide-${index}`);
+            if(activeSlide) {
+                activeSlide.classList.remove('hidden');
+                // Trigger reflow to restart animation
+                void activeSlide.offsetWidth; 
+                activeSlide.classList.add('animate-fadeIn');
+            }
+            
+            updateNavButtons();
+        }
+
+        // --- RENDER HISTORY ---
+        function renderHistory() {
+            const container = document.getElementById('history-container');
+            let html = '';
+            historyData.forEach((item, index) => {
+                html += `
+                <div class="timeline-point relative pl-8 pb-8 border-l-2 border-gray-200 last:border-0 last:pb-0">
+                    <div class="timeline-marker absolute -left-[9px] top-0 w-4 h-4 rounded-full bg-blue-400 border-2 border-white shadow"></div>
+                    <div>
+                        <span class="text-sm font-bold text-blue-600">${item.year}</span>
+                        <h4 class="font-bold text-gray-800 text-lg">${item.title}</h4>
+                        <p class="text-gray-600 text-sm mt-1">${item.desc}</p>
+                    </div>
+                </div>`;
+            });
+            if(container) container.innerHTML = html;
+        }
+
+        // --- INTERACTIVITY: ARCHITECTURE ---
+        function showArchDetail(part) {
+            const panel = document.getElementById('arch-detail-panel');
+            const title = document.getElementById('arch-detail-title');
+            const desc = document.getElementById('arch-detail-desc');
+            
+            const info = archDetails[part];
+            
+            title.textContent = info.title;
+            desc.textContent = info.desc;
+            
+            panel.classList.remove('hidden');
+            panel.classList.add('animate-pulse');
+            setTimeout(() => panel.classList.remove('animate-pulse'), 500);
+        }
+
+        // --- VISUALIZATION: CHARTS ---
+        function initCharts() {
+            const canvas = document.getElementById('comparisonChart');
+            if(!canvas) return;
+            
+            const ctx = canvas.getContext('2d');
+            
+            const data = {
+                labels: ['Tốc độ', 'Dễ cài đặt', 'Đa nền tảng', 'Hỗ trợ ngôn ngữ', 'Truy cập sâu', 'Cộng đồng'],
+                datasets: [{
+                    label: 'Appium',
+                    data: [6, 5, 10, 10, 6, 9],
+                    fill: true,
+                    backgroundColor: 'rgba(37, 99, 235, 0.2)',
+                    borderColor: 'rgb(37, 99, 235)',
+                    pointBackgroundColor: 'rgb(37, 99, 235)',
+                    pointBorderColor: '#fff'
+                }, {
+                    label: 'Native (Espresso)',
+                    data: [10, 8, 2, 3, 10, 7],
+                    fill: true,
+                    backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                    borderColor: 'rgb(255, 99, 132)',
+                    pointBackgroundColor: 'rgb(255, 99, 132)',
+                    pointBorderColor: '#fff'
+                }]
+            };
+
+            const config = {
+                type: 'radar',
+                data: data,
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        r: {
+                            angleLines: { display: true },
+                            suggestedMin: 0,
+                            suggestedMax: 10,
+                            ticks: { display: false, stepSize: 2 }
+                        }
+                    },
+                    plugins: {
+                        legend: { position: 'bottom' }
+                    }
+                },
+            };
+
+            new Chart(ctx, config);
+        }
+    </script>
+</body>
+</html>
