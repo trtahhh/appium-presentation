@@ -1,1628 +1,1291 @@
 <!doctype html>
 <html lang="vi">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Appium: Công cụ kiểm thử Mobile</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
-      rel="stylesheet"
-    />
-    <style>
-      @keyframes fadeIn {
-        from {
-          opacity: 0;
-          transform: translateY(15px);
-        }
-        to {
-          opacity: 1;
-          transform: translateY(0);
-        }
-      }
-      @keyframes slideInLeft {
-        from {
-          opacity: 0;
-          transform: translateX(-30px);
-        }
-        to {
-          opacity: 1;
-          transform: translateX(0);
-        }
-      }
-      @keyframes pulse-glow {
-        0%,
-        100% {
-          box-shadow: 0 0 5px rgba(59, 130, 246, 0.3);
-        }
-        50% {
-          box-shadow: 0 0 20px rgba(59, 130, 246, 0.6);
-        }
-      }
-      .animate-fadeIn {
-        animation: fadeIn 0.5s ease-out forwards;
-      }
-      .animate-slideLeft {
-        animation: slideInLeft 0.4s ease-out forwards;
-      }
-      .glow {
-        animation: pulse-glow 2s infinite;
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Appium: Công cụ kiểm thử Mobile</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+    rel="stylesheet" />
+  <style>
+    /* Math-based 3D Transitions (RotateY matrix equivalent) */
+    @keyframes rotate3dInNext {
+      0% {
+        opacity: 0;
+        transform: translate(var(--tw-translate-x, 0), var(--tw-translate-y, 0)) translateZ(-50px) rotateY(60deg);
       }
 
-      body {
-        font-family: "Inter", sans-serif;
-        background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
-        color: #e2e8f0;
+      100% {
+        opacity: 1;
+        transform: translate(var(--tw-translate-x, 0), var(--tw-translate-y, 0)) translateZ(0) rotateY(0deg);
+      }
+    }
+
+    @keyframes rotate3dInPrev {
+      0% {
+        opacity: 0;
+        transform: translate(var(--tw-translate-x, 0), var(--tw-translate-y, 0)) translateZ(-50px) rotateY(-60deg);
       }
 
-      .glass {
-        background: rgba(255, 255, 255, 0.05);
-        backdrop-filter: blur(12px);
-        border: 1px solid rgba(255, 255, 255, 0.1);
+      100% {
+        opacity: 1;
+        transform: translate(var(--tw-translate-x, 0), var(--tw-translate-y, 0)) translateZ(0) rotateY(0deg);
       }
-      .glass-light {
-        background: rgba(255, 255, 255, 0.08);
-        backdrop-filter: blur(8px);
-        border: 1px solid rgba(255, 255, 255, 0.12);
+    }
+
+    .animate-3d-in-next {
+      animation: rotate3dInNext 0.6s ease-out forwards;
+      transform-origin: center center -500px;
+    }
+
+    .animate-3d-in-prev {
+      animation: rotate3dInPrev 0.6s ease-out forwards;
+      transform-origin: center center -500px;
+    }
+
+    /* Typewriter Effect */
+    @keyframes typing {
+      0% {
+        max-width: 0;
+        visibility: hidden;
       }
 
-      .arch-box {
-        transition: all 0.3s ease;
-        cursor: pointer;
-      }
-      .arch-box:hover {
-        transform: translateY(-4px);
-        box-shadow: 0 8px 25px rgba(59, 130, 246, 0.3);
-        border-color: #3b82f6;
+      1% {
+        max-width: 0;
+        visibility: visible;
       }
 
-      .card-hover {
-        transition: all 0.3s ease;
+      100% {
+        max-width: 100%;
+        visibility: visible;
       }
-      .card-hover:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 12px 30px rgba(0, 0, 0, 0.3);
+    }
+
+    @keyframes blink-caret {
+
+      from,
+      to {
+        border-color: transparent
       }
 
-      ::-webkit-scrollbar {
-        width: 6px;
+      50% {
+        border-color: rgba(59, 130, 246, 0.8);
       }
-      ::-webkit-scrollbar-track {
-        background: rgba(255, 255, 255, 0.05);
-      }
-      ::-webkit-scrollbar-thumb {
-        background: rgba(255, 255, 255, 0.2);
-        border-radius: 3px;
+    }
+
+    /* 
+      To reset the animation on slide change, we remove and re-add this class in JS.
+      The 'ch' unit is characters. We use a generic 100% max-width for varying lengths.
+    */
+    .typewriter-effect {
+      display: inline-block;
+      overflow: hidden;
+      border-right: .15em solid transparent;
+      white-space: nowrap;
+      margin: 0 auto;
+      letter-spacing: .05em;
+      /* Adding 1s delay to typing, but cursor blinks immediately */
+      animation:
+        typing 1.5s steps(40, end) 1s forwards,
+        blink-caret .75s step-end infinite;
+      max-width: 0;
+      visibility: hidden;
+      /* Ensures it stays hidden during the 1s delay */
+    }
+
+    @keyframes pulse-glow {
+
+      0%,
+      100% {
+        box-shadow: 0 0 5px rgba(59, 130, 246, 0.3);
       }
 
-      .timeline-point:hover .timeline-marker {
-        background-color: #3b82f6;
-        transform: scale(1.3);
-        box-shadow: 0 0 15px rgba(59, 130, 246, 0.5);
+      50% {
+        box-shadow: 0 0 20px rgba(59, 130, 246, 0.6);
       }
-      .timeline-marker {
-        transition: all 0.3s ease;
-      }
-    </style>
-  </head>
-  <body class="min-h-screen flex flex-col">
-    <!-- Header -->
-    <header
-      class="fixed top-0 left-0 w-full z-40 glass px-8 py-4 flex justify-between items-center transition-all duration-300 hover:opacity-100 opacity-60 hover:bg-slate-900/90"
-    >
-      <div class="flex items-center gap-3">
-        <img
-          src="logo CMYK-01.png"
-          alt="HUTECH University"
-          class="h-12 object-contain"
-        />
-        <span class="text-slate-600">|</span>
-        <span class="text-blue-400">
-          <svg
-            role="img"
-            viewBox="0 0 24 24"
-            class="w-9 h-9"
-            fill="currentColor"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <title>Appium</title>
-            <path
-              d="M11.923 0C5.937 0 .976 4.384.07 10.115a11.943 11.943 0 0 1 7.645-2.754 11.982 11.982 0 0 1 9.43 4.58 11.942 11.942 0 0 0 1.015-8.769 12.066 12.066 0 0 0-.626-1.772l-.003-.008A11.968 11.968 0 0 0 11.923 0Zm7.721 2.754A12.002 12.002 0 0 1 9.398 16.521a12.082 12.082 0 0 0 9.02 5.617c.24-.119.766-.51 1.224-.89A11.971 11.971 0 0 0 23.995 12a11.98 11.98 0 0 0-4.35-9.247zM9.33 7.557a12.159 12.159 0 0 0-2.647.401A11.944 11.944 0 0 0 .01 12.595l-.005.006c.021.427.065.853.131 1.275C1.037 19.61 6 24 11.991 24c1.45 0 2.887-.26 4.243-.773a12 12 0 0 1-6.905-15.67z"
-            />
-          </svg>
-        </span>
-        <h1 class="text-xl font-bold text-white">Appium</h1>
-      </div>
-      <div
-        class="text-sm font-mono text-slate-400 glass-light px-4 py-2 rounded-full"
-      >
-        Slide <span id="current-slide-num">1</span> /
-        <span id="total-slide-num">16</span>
-      </div>
-    </header>
+    }
 
-    <!-- Navigation Controls -->
-    <div class="fixed bottom-6 right-6 flex space-x-3 z-50">
-      <button
-        id="btn-prev"
-        onclick="navigateSlide(-1)"
-        class="bg-blue-600 text-white p-3 rounded-full shadow-lg hover:bg-blue-500 disabled:opacity-30 disabled:cursor-not-allowed transition-all transform hover:scale-110 glow"
-      >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          class="h-5 w-5"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-        >
+    .glow {
+      animation: pulse-glow 2s infinite;
+    }
+
+    body {
+      font-family: "Inter", sans-serif;
+      background-color: #0f172a;
+      /* Solid color */
+      color: #f8fafc;
+      overflow-x: hidden;
+    }
+
+    .glass {
+      background: rgba(30, 41, 59, 0.7);
+      /* Solid-ish dark slate instead of highly transparent glass */
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .glass-light {
+      background: rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+    }
+
+    .arch-box {
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+
+    .arch-box:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 25px rgba(59, 130, 246, 0.3);
+      border-color: #3b82f6;
+    }
+
+    .card-hover {
+      transition: all 0.3s ease;
+    }
+
+    .card-hover:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.3);
+    }
+
+    ::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 3px;
+    }
+
+    .timeline-point:hover .timeline-marker {
+      background-color: #3b82f6;
+      transform: scale(1.3);
+      box-shadow: 0 0 15px rgba(59, 130, 246, 0.5);
+    }
+
+    .timeline-marker {
+      transition: all 0.3s ease;
+    }
+  </style>
+</head>
+
+<body class="min-h-screen flex flex-col">
+  <!-- Header -->
+  <header
+    class="fixed top-0 left-0 w-full z-40 glass px-8 py-4 flex justify-between items-center transition-all duration-300 hover:opacity-100 opacity-60 hover:bg-slate-900/90">
+    <div class="flex items-center gap-3">
+      <img src="logo CMYK-01.png" alt="HUTECH University" class="h-12 object-contain" />
+      <span class="text-slate-600">|</span>
+      <span class="text-blue-400">
+        <svg role="img" viewBox="0 0 24 24" class="w-9 h-9" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+          <title>Appium</title>
           <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M15 19l-7-7 7-7"
-          />
+            d="M11.923 0C5.937 0 .976 4.384.07 10.115a11.943 11.943 0 0 1 7.645-2.754 11.982 11.982 0 0 1 9.43 4.58 11.942 11.942 0 0 0 1.015-8.769 12.066 12.066 0 0 0-.626-1.772l-.003-.008A11.968 11.968 0 0 0 11.923 0Zm7.721 2.754A12.002 12.002 0 0 1 9.398 16.521a12.082 12.082 0 0 0 9.02 5.617c.24-.119.766-.51 1.224-.89A11.971 11.971 0 0 0 23.995 12a11.98 11.98 0 0 0-4.35-9.247zM9.33 7.557a12.159 12.159 0 0 0-2.647.401A11.944 11.944 0 0 0 .01 12.595l-.005.006c.021.427.065.853.131 1.275C1.037 19.61 6 24 11.991 24c1.45 0 2.887-.26 4.243-.773a12 12 0 0 1-6.905-15.67z" />
         </svg>
-      </button>
-      <button
-        id="btn-next"
-        onclick="navigateSlide(1)"
-        class="bg-blue-600 text-white p-3 rounded-full shadow-lg hover:bg-blue-500 disabled:opacity-30 disabled:cursor-not-allowed transition-all transform hover:scale-110 glow"
-      >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          class="h-5 w-5"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-        >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M9 5l7 7-7 7"
-          />
-        </svg>
-      </button>
+      </span>
+      <h1 class="text-xl font-bold text-white">Appium</h1>
     </div>
+    <div class="text-sm font-mono text-slate-400 glass-light px-4 py-2 rounded-full">
+      Slide <span id="current-slide-num">1</span> /
+      <span id="total-slide-num">16</span>
+    </div>
+  </header>
 
-    <!-- Main Content -->
-    <main
-      id="presentation-container"
-      class="flex-grow w-full h-screen flex flex-col items-center justify-center overflow-hidden relative"
-    >
-      <!-- SLIDE 0: Title -->
-      <div
-        id="slide-0"
-        class="slide w-full max-w-5xl p-8 text-center animate-fadeIn"
-      >
-        <div class="mb-6 flex justify-center">
-          <div class="text-blue-400 glow rounded-full p-4">
-            <svg
-              role="img"
-              viewBox="0 0 24 24"
-              class="w-28 h-28"
-              fill="currentColor"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M11.923 0C5.937 0 .976 4.384.07 10.115a11.943 11.943 0 0 1 7.645-2.754 11.982 11.982 0 0 1 9.43 4.58 11.942 11.942 0 0 0 1.015-8.769 12.066 12.066 0 0 0-.626-1.772l-.003-.008A11.968 11.968 0 0 0 11.923 0Zm7.721 2.754A12.002 12.002 0 0 1 9.398 16.521a12.082 12.082 0 0 0 9.02 5.617c.24-.119.766-.51 1.224-.89A11.971 11.971 0 0 0 23.995 12a11.98 11.98 0 0 0-4.35-9.247zM9.33 7.557a12.159 12.159 0 0 0-2.647.401A11.944 11.944 0 0 0 .01 12.595l-.005.006c.021.427.065.853.131 1.275C1.037 19.61 6 24 11.991 24c1.45 0 2.887-.26 4.243-.773a12 12 0 0 1-6.905-15.67z"
-              />
-            </svg>
-          </div>
-        </div>
-        <h1 class="text-5xl font-extrabold text-white mb-3 tracking-tight">
-          Appium: Công cụ kiểm thử Mobile
-        </h1>
-        <div
-          class="grid grid-cols-1 md:grid-cols-2 gap-6 text-left max-w-3xl mx-auto glass p-8 rounded-2xl"
-        >
-          <div>
-            <p
-              class="text-slate-400 text-xs uppercase tracking-widest font-bold mb-1"
-            >
-              Giảng viên hướng dẫn
-            </p>
-            <p class="text-lg font-bold text-white">ThS. Trịnh Công Nhựt</p>
-            <p class="text-slate-400 text-sm mt-1">HUTECH University</p>
-          </div>
-          <div>
-            <p
-              class="text-slate-400 text-xs uppercase tracking-widest font-bold mb-1"
-            >
-              Nhóm sinh viên thực hiện
-            </p>
-            <ul class="text-base text-white space-y-1">
-              <li class="flex items-center">
-                <span class="w-2 h-2 bg-blue-400 rounded-full mr-2"></span>Trần
-                Tuấn Anh
-              </li>
-              <li class="flex items-center">
-                <span class="w-2 h-2 bg-blue-400 rounded-full mr-2"></span>Phan
-                Chí Cơ
-              </li>
-            </ul>
-          </div>
+  <!-- Navigation Controls -->
+  <div class="fixed bottom-6 right-6 flex space-x-3 z-50">
+    <button id="btn-prev" onclick="navigateSlide(-1)"
+      class="bg-blue-600 text-white p-3 rounded-full shadow-lg hover:bg-blue-500 disabled:opacity-30 disabled:cursor-not-allowed transition-all transform hover:scale-110 glow">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+      </svg>
+    </button>
+    <button id="btn-next" onclick="navigateSlide(1)"
+      class="bg-blue-600 text-white p-3 rounded-full shadow-lg hover:bg-blue-500 disabled:opacity-30 disabled:cursor-not-allowed transition-all transform hover:scale-110 glow">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+      </svg>
+    </button>
+  </div>
+
+  <!-- Main Content -->
+  <main id="presentation-container"
+    class="flex-grow w-full h-screen flex flex-col items-center justify-center overflow-hidden relative"
+    style="perspective: 1200px;">
+    <!-- SLIDE 0: Title -->
+    <div id="slide-0"
+      class="slide w-full max-w-5xl p-8 text-center animate-3d-in absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
+      <div class="mb-6 flex justify-center">
+        <div class="text-blue-400 glow rounded-full p-4">
+          <svg role="img" viewBox="0 0 24 24" class="w-28 h-28" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+            <path
+              d="M11.923 0C5.937 0 .976 4.384.07 10.115a11.943 11.943 0 0 1 7.645-2.754 11.982 11.982 0 0 1 9.43 4.58 11.942 11.942 0 0 0 1.015-8.769 12.066 12.066 0 0 0-.626-1.772l-.003-.008A11.968 11.968 0 0 0 11.923 0Zm7.721 2.754A12.002 12.002 0 0 1 9.398 16.521a12.082 12.082 0 0 0 9.02 5.617c.24-.119.766-.51 1.224-.89A11.971 11.971 0 0 0 23.995 12a11.98 11.98 0 0 0-4.35-9.247zM9.33 7.557a12.159 12.159 0 0 0-2.647.401A11.944 11.944 0 0 0 .01 12.595l-.005.006c.021.427.065.853.131 1.275C1.037 19.61 6 24 11.991 24c1.45 0 2.887-.26 4.243-.773a12 12 0 0 1-6.905-15.67z" />
+          </svg>
         </div>
       </div>
-
-      <!-- SLIDE 1: Appium là gì + 4 Triết lý -->
-      <div id="slide-1" class="slide w-full max-w-6xl p-8 hidden">
-        <h2 class="text-5xl font-extrabold text-white mb-2">
-          Tự Động Hóa Kiểm Thử Mobile
-        </h2>
-        <p class="text-xl text-slate-400 mb-8">
-          Framework mã nguồn mở — Hỗ trợ
-          <span class="text-blue-400 font-semibold">Native</span>,
-          <span class="text-purple-400 font-semibold">Hybrid</span>,
-          <span class="text-green-400 font-semibold">Mobile Web</span>
-        </p>
-        <div class="grid grid-cols-2 gap-5">
-          <div
-            class="glass p-5 rounded-xl card-hover border-l-4 border-blue-500"
-          >
-            <div class="flex items-center gap-2 mb-2">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke-width="1.5"
-                stroke="currentColor"
-                class="w-7 h-7 text-blue-400 flex-shrink-0"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z"
-                />
-              </svg>
-              <h3 class="text-xl font-bold text-blue-400">
-                Giữ nguyên app gốc
-              </h3>
-            </div>
-            <p class="text-slate-300 text-base">
-              Test đúng file .apk/.ipa gốc, không chèn SDK.
-            </p>
-          </div>
-          <div
-            class="glass p-5 rounded-xl card-hover border-l-4 border-purple-500"
-          >
-            <div class="flex items-center gap-2 mb-2">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke-width="1.5"
-                stroke="currentColor"
-                class="w-7 h-7 text-purple-400 flex-shrink-0"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  d="M17.25 6.75L22.5 12l-5.25 5.25m-10.5 0L1.5 12l5.25-5.25m7.5-3l-4.5 16.5"
-                />
-              </svg>
-              <h3 class="text-xl font-bold text-purple-400">
-                Chọn ngôn ngữ tự do
-              </h3>
-            </div>
-            <p class="text-slate-300 text-base">
-              Java, Python, JS, C#, Ruby... tùy đội ngũ.
-            </p>
-          </div>
-          <div
-            class="glass p-5 rounded-xl card-hover border-l-4 border-green-500"
-          >
-            <div class="flex items-center gap-2 mb-2">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke-width="1.5"
-                stroke="currentColor"
-                class="w-7 h-7 text-green-400 flex-shrink-0"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  d="M13.19 8.688a4.5 4.5 0 011.242 7.244l-4.5 4.5a4.5 4.5 0 01-6.364-6.364l1.757-1.757m13.35-.622l1.757-1.757a4.5 4.5 0 00-6.364-6.364l-4.5 4.5a4.5 4.5 0 001.242 7.244"
-                />
-              </svg>
-              <h3 class="text-xl font-bold text-green-400">
-                Tận dụng chuẩn W3C
-              </h3>
-            </div>
-            <p class="text-slate-300 text-base">
-              Selenium WebDriver API quen thuộc.
-            </p>
-          </div>
-          <div
-            class="glass p-5 rounded-xl card-hover border-l-4 border-amber-500"
-          >
-            <div class="flex items-center gap-2 mb-2">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke-width="1.5"
-                stroke="currentColor"
-                class="w-7 h-7 text-amber-400 flex-shrink-0"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  d="M12 21a9.004 9.004 0 008.716-6.747M12 21a9.004 9.004 0 01-8.716-6.747M12 21c2.485 0 4.5-4.03 4.5-9S14.485 3 12 3m0 18c-2.485 0-4.5-4.03-4.5-9S9.515 3 12 3m0 0a8.997 8.997 0 017.843 4.582M12 3a8.997 8.997 0 00-7.843 4.582m15.686 0A11.953 11.953 0 0112 10.5c-2.998 0-5.74-1.1-7.843-2.918m15.686 0A8.959 8.959 0 0121 12c0 .778-.099 1.533-.284 2.253m0 0A17.919 17.919 0 0112 16.5c-3.162 0-6.133-.815-8.716-2.247m0 0A9.015 9.015 0 013 12c0-1.605.42-3.113 1.157-4.418"
-                />
-              </svg>
-              <h3 class="text-xl font-bold text-amber-400">
-                Miễn phí, cập nhật liên tục
-              </h3>
-            </div>
-            <p class="text-slate-300 text-base">
-              Cộng đồng lớn, cập nhật liên tục, miễn phí.
-            </p>
-          </div>
+      <h1 class="text-5xl font-extrabold text-white mb-3 tracking-tight">
+        Appium: Công cụ kiểm thử Mobile
+      </h1>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-left max-w-3xl mx-auto glass p-8 rounded-2xl">
+        <div>
+          <p class="text-slate-400 text-xs uppercase tracking-widest font-bold mb-1">
+            Giảng viên hướng dẫn
+          </p>
+          <p class="text-lg font-bold text-white">ThS. Trịnh Công Nhựt</p>
+          <p class="text-slate-400 text-sm mt-1">HUTECH University</p>
         </div>
-      </div>
-
-      <!-- SLIDE 2: History -->
-      <div id="slide-2" class="slide w-full max-w-5xl p-8 hidden">
-        <h2 class="text-5xl font-extrabold text-white mb-8">
-          Lịch Sử Hình Thành
-        </h2>
-        <div class="glass p-8 rounded-2xl" id="history-container"></div>
-      </div>
-
-      <!-- SLIDE 3: Hệ sinh thái Client-Server-Device -->
-      <div id="slide-3" class="slide w-full max-w-6xl p-6 hidden">
-        <h2 class="text-4xl font-extrabold text-white mb-1 text-center">
-          3 Thành Phần Cốt Lõi
-        </h2>
-        <p class="text-center text-slate-400 mb-6 text-lg">
-          Client — Server — Device
-        </p>
-        <div
-          class="flex items-center justify-center gap-3 py-6 glass rounded-2xl p-6 mb-5"
-        >
-          <div
-            onclick="showArchDetail('client')"
-            class="arch-box glass-light p-5 rounded-xl w-1/4 text-center group"
-          >
-            <div class="mb-2 text-blue-400">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke-width="1.5"
-                stroke="currentColor"
-                class="w-10 h-10 mx-auto"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  d="M9 17.25v1.007a3 3 0 01-.879 2.122L7.5 21h9l-.621-.621A3 3 0 0115 18.257V17.25m6-12V15a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 15V5.25m18 0A2.25 2.25 0 0018.75 3H5.25A2.25 2.25 0 003 5.25m18 0V12a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 12V5.25"
-                />
-              </svg>
-            </div>
-            <div class="font-bold text-lg text-white">Appium Client</div>
-            <div class="text-xs text-slate-400 mt-1">Test Scripts</div>
-          </div>
-          <div class="flex flex-col items-center px-3">
-            <span
-              class="text-[10px] font-mono text-slate-500 glass-light px-2 py-0.5 rounded mb-1"
-              >HTTP / JSON</span
-            >
-            <svg
-              class="w-6 h-6 text-blue-500 animate-pulse"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M14 5l7 7m0 0l-7 7m7-7H3"
-              />
-            </svg>
-          </div>
-          <div
-            onclick="showArchDetail('server')"
-            class="arch-box glass-light p-5 rounded-xl w-1/4 text-center group"
-          >
-            <div class="mb-2 text-amber-400">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke-width="1.5"
-                stroke="currentColor"
-                class="w-10 h-10 mx-auto"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  d="M5.25 14.25h13.5m-13.5 0a3 3 0 01-3-3m3 3a3 3 0 100 6h13.5a3 3 0 100-6m-16.5-3a3 3 0 013-3h13.5a3 3 0 013 3m-19.5 0a4.5 4.5 0 01.9-2.7L5.737 5.1a3.375 3.375 0 012.7-1.35h7.126c1.062 0 2.062.5 2.7 1.35l2.587 3.45a4.5 4.5 0 01.9 2.7m0 0a3 3 0 01-3 3m0 3h.008v.008h-.008v-.008zm0-6h.008v.008h-.008v-.008zm-3 6h.008v.008h-.008v-.008zm0-6h.008v.008h-.008v-.008z"
-                />
-              </svg>
-            </div>
-            <div class="font-bold text-lg text-white">Appium Server</div>
-            <div class="text-xs text-slate-400 mt-1">Node.js API</div>
-          </div>
-          <div class="flex flex-col items-center px-3">
-            <span
-              class="text-[10px] font-mono text-slate-500 glass-light px-2 py-0.5 rounded mb-1"
-              >W3C WebDriver</span
-            >
-            <svg
-              class="w-6 h-6 text-green-500 animate-pulse"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M14 5l7 7m0 0l-7 7m7-7H3"
-              />
-            </svg>
-          </div>
-          <div
-            onclick="showArchDetail('device')"
-            class="arch-box glass-light p-5 rounded-xl w-1/4 text-center group"
-          >
-            <div class="mb-2 text-green-400">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke-width="1.5"
-                stroke="currentColor"
-                class="w-10 h-10 mx-auto"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  d="M10.5 1.5H8.25A2.25 2.25 0 006 3.75v16.5a2.25 2.25 0 002.25 2.25h7.5A2.25 2.25 0 0018 20.25V3.75a2.25 2.25 0 00-2.25-2.25H13.5m-3 0V3h3V1.5m-3 0h3m-3 18.75h3"
-                />
-              </svg>
-            </div>
-            <div class="font-bold text-lg text-white">Device</div>
-            <div class="text-xs text-slate-400 mt-1">Emulator / Real</div>
-          </div>
-        </div>
-        <!-- Bảng vai trò -->
-        <div class="glass rounded-xl overflow-hidden text-sm">
-          <table class="min-w-full">
-            <thead class="bg-white/10">
-              <tr>
-                <th
-                  class="px-5 py-3 text-left font-bold text-blue-400 uppercase text-xs"
-                >
-                  Thành phần
-                </th>
-                <th
-                  class="px-5 py-3 text-left font-bold text-blue-400 uppercase text-xs"
-                >
-                  Vai trò chính
-                </th>
-                <th
-                  class="px-5 py-3 text-left font-bold text-blue-400 uppercase text-xs"
-                >
-                  Ví dụ thực tế
-                </th>
-              </tr>
-            </thead>
-            <tbody class="divide-y divide-white/5">
-              <tr>
-                <td class="px-5 py-3 font-medium text-white">Appium Client</td>
-                <td class="px-5 py-3 text-slate-300">
-                  Chứa Test Scripts, gửi lệnh HTTP tới Server
-                </td>
-                <td class="px-5 py-3 text-slate-400">
-                  Java (TestNG), Python (Pytest)
-                </td>
-              </tr>
-              <tr>
-                <td class="px-5 py-3 font-medium text-white">Appium Server</td>
-                <td class="px-5 py-3 text-slate-300">
-                  "Trái tim" — tiếp nhận, dịch và điều phối lệnh
-                </td>
-                <td class="px-5 py-3 text-slate-400">
-                  Node.js (CLI hoặc Desktop app)
-                </td>
-              </tr>
-              <tr>
-                <td class="px-5 py-3 font-medium text-white">
-                  Device / Emulator
-                </td>
-                <td class="px-5 py-3 text-slate-300">
-                  Thực thi hành động trên ứng dụng
-                </td>
-                <td class="px-5 py-3 text-slate-400">
-                  Android Emulator, iPhone thật
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-        <div
-          id="arch-detail-panel"
-          class="mt-4 glass border-l-4 border-blue-500 p-4 rounded-r-lg hidden transition-all"
-        >
-          <h3
-            id="arch-detail-title"
-            class="font-bold text-lg text-blue-400 mb-1"
-          ></h3>
-          <p id="arch-detail-desc" class="text-slate-300 text-sm"></p>
-        </div>
-      </div>
-
-      <!-- SLIDE 4: WebDriver API -->
-      <div id="slide-4" class="slide w-full max-w-5xl p-8 hidden">
-        <h2 class="text-5xl font-extrabold text-white mb-2">WebDriver API</h2>
-        <p class="text-slate-400 mb-8 text-xl">
-          Chuẩn W3C — Viết lệnh bằng bất kỳ ngôn ngữ nào.
-        </p>
-        <div class="glass p-8 rounded-2xl">
-          <ol class="space-y-5 relative border-l-2 border-blue-500/30 ml-4">
-            <li class="pl-8 relative">
-              <span
-                class="absolute -left-[9px] top-1 w-4 h-4 rounded-full bg-blue-500 border-2 border-slate-900 shadow-lg shadow-blue-500/30"
-              ></span>
-              <h4 class="font-bold text-lg text-white">1. Viết lệnh</h4>
-              <p class="text-slate-400 mt-1 text-base">
-                Gọi
-                <code class="bg-white/10 px-2 py-0.5 rounded text-blue-300"
-                  >driver.click()</code
-                >
-                từ script
-              </p>
-            </li>
-            <li class="pl-8 relative">
-              <span
-                class="absolute -left-[9px] top-1 w-4 h-4 rounded-full bg-purple-500 border-2 border-slate-900 shadow-lg shadow-purple-500/30"
-              ></span>
-              <h4 class="font-bold text-lg text-white">2. Đóng gói lệnh</h4>
-              <p class="text-slate-400 mt-1 text-base">
-                Chuyển thành
-                <code class="bg-white/10 px-2 py-0.5 rounded text-purple-300"
-                  >HTTP POST</code
-                >
-                gửi tới Server
-              </p>
-            </li>
-            <li class="pl-8 relative">
-              <span
-                class="absolute -left-[9px] top-1 w-4 h-4 rounded-full bg-green-500 border-2 border-slate-900 shadow-lg shadow-green-500/30"
-              ></span>
-              <h4 class="font-bold text-lg text-white">3. Server diện giải</h4>
-              <p class="text-slate-400 mt-1 text-base">
-                Nhận lệnh, chọn Driver phù hợp, ra lệnh cho thiết bị
-              </p>
-            </li>
-            <li class="pl-8 relative">
-              <span
-                class="absolute -left-[9px] top-1 w-4 h-4 rounded-full bg-amber-500 border-2 border-slate-900 shadow-lg shadow-amber-500/30"
-              ></span>
-              <h4 class="font-bold text-lg text-white">
-                4. Thực thi hành động
-              </h4>
-              <p class="text-slate-400 mt-1 text-base">
-                Thiết bị nhấp vào đúng Element được yêu cầu
-              </p>
-            </li>
-          </ol>
-        </div>
-      </div>
-
-      <!-- SLIDE 5: Drivers đa nền tảng -->
-      <div id="slide-5" class="slide w-full max-w-5xl p-8 hidden">
-        <h2 class="text-5xl font-extrabold text-white mb-2">
-          Hỗ Trợ 4 Nền Tảng Chính
-        </h2>
-        <p class="text-slate-400 mb-8 text-xl">
-          Mỗi nền tảng có Driver chuyên biệt riêng.
-        </p>
-        <div class="grid grid-cols-2 gap-5">
-          <div
-            class="glass p-5 rounded-xl card-hover border-t-4 border-green-500"
-          >
-            <div class="flex items-center gap-2 mb-3">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke-width="1.5"
-                stroke="currentColor"
-                class="w-7 h-7 text-green-400 flex-shrink-0"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  d="M8.25 3v1.5M4.5 8.25H3m18 0h-1.5M4.5 12H3m18 0h-1.5m-15 3.75H3m18 0h-1.5M8.25 19.5V21M12 3v1.5m0 15V21m3.75-18v1.5m0 15V21m-9-1.5h10.5a2.25 2.25 0 002.25-2.25V6.75a2.25 2.25 0 00-2.25-2.25H6.75A2.25 2.25 0 004.5 6.75v10.5a2.25 2.25 0 002.25 2.25zm.75-12h9v9h-9v-9z"
-                />
-              </svg>
-              <h3 class="text-xl font-bold text-green-400">UIAutomator2</h3>
-            </div>
-            <p class="text-slate-300 text-base">
-              <strong>Android</strong> 4.2+ — Google recommended.
-            </p>
-          </div>
-          <div
-            class="glass p-5 rounded-xl card-hover border-t-4 border-emerald-500"
-          >
-            <div class="flex items-center gap-2 mb-3">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke-width="1.5"
-                stroke="currentColor"
-                class="w-7 h-7 text-emerald-400 flex-shrink-0"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z"
-                />
-              </svg>
-              <h3 class="text-xl font-bold text-emerald-400">Espresso</h3>
-            </div>
-            <p class="text-slate-300 text-base">
-              <strong>Android</strong> — Tốc độ cao, đồng bộ UI tốt.
-            </p>
-          </div>
-          <div
-            class="glass p-5 rounded-xl card-hover border-t-4 border-slate-400"
-          >
-            <div class="flex items-center gap-2 mb-3">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke-width="1.5"
-                stroke="currentColor"
-                class="w-7 h-7 text-slate-300 flex-shrink-0"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  d="M9 17.25v1.007a3 3 0 01-.879 2.122L7.5 21h9l-.621-.621A3 3 0 0115 18.257V17.25m6-12V15a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 15V5.25m18 0A2.25 2.25 0 0018.75 3H5.25A2.25 2.25 0 003 5.25m18 0V12a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 12V5.25"
-                />
-              </svg>
-              <h3 class="text-xl font-bold text-slate-300">XCUITest</h3>
-            </div>
-            <p class="text-slate-300 text-base">
-              <strong>iOS</strong> — Driver duy nhất, Apple standard.
-            </p>
-          </div>
-          <div
-            class="glass p-5 rounded-xl card-hover border-t-4 border-blue-500"
-          >
-            <div class="flex items-center gap-2 mb-3">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke-width="1.5"
-                stroke="currentColor"
-                class="w-7 h-7 text-blue-400 flex-shrink-0"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  d="M3.75 6A2.25 2.25 0 016 3.75h2.25A2.25 2.25 0 0110.5 6v2.25a2.25 2.25 0 01-2.25 2.25H6a2.25 2.25 0 01-2.25-2.25V6zM3.75 15.75A2.25 2.25 0 016 13.5h2.25a2.25 2.25 0 012.25 2.25V18a2.25 2.25 0 01-2.25 2.25H6A2.25 2.25 0 013.75 18v-2.25zM13.5 6a2.25 2.25 0 012.25-2.25H18A2.25 2.25 0 0120.25 6v2.25A2.25 2.25 0 0118 10.5h-2.25a2.25 2.25 0 01-2.25-2.25V6zM13.5 15.75a2.25 2.25 0 012.25-2.25H18a2.25 2.25 0 012.25 2.25V18A2.25 2.25 0 0118 20.25h-2.25A2.25 2.25 0 0113.5 18v-2.25z"
-                />
-              </svg>
-              <h3 class="text-xl font-bold text-blue-400">WinAppDriver</h3>
-            </div>
-            <p class="text-slate-300 text-base">
-              <strong>Windows Desktop</strong> — Microsoft official.
-            </p>
-          </div>
-        </div>
-      </div>
-
-      <!-- SLIDE 6: Kiến trúc Appium 2.x (MỚI) -->
-      <div id="slide-6" class="slide w-full max-w-6xl p-8 hidden">
-        <div class="flex items-center mb-6">
-          <h2 class="text-5xl font-extrabold text-white mr-3">
-            Mô-đun hóa Hoàn Toàn Từ 2.x
-          </h2>
-          <span
-            class="bg-blue-500 text-white text-xs font-bold px-3 py-1 rounded-full"
-            >MỚI</span
-          >
-        </div>
-        <p class="text-slate-400 mb-6 text-xl">
-          Tách riêng Server, Driver, Plugin — cài đặt độc lập.
-        </p>
-        <div class="grid grid-cols-3 gap-5 mb-6">
-          <div
-            class="glass p-5 rounded-xl card-hover text-center border-b-4 border-blue-500"
-          >
-            <div class="mb-2 text-blue-400">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke-width="1.5"
-                stroke="currentColor"
-                class="w-9 h-9 mx-auto"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  d="M10.5 6h9.75M10.5 6a1.5 1.5 0 11-3 0m3 0a1.5 1.5 0 10-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-9.75 0h9.75"
-                />
-              </svg>
-            </div>
-            <h3 class="font-bold text-blue-400 text-lg">Server (Manager)</h3>
-            <p class="text-slate-400 text-base mt-2">
-              Tiếp nhận REST API, điều phối luồng.
-            </p>
-          </div>
-          <div
-            class="glass p-5 rounded-xl card-hover text-center border-b-4 border-purple-500"
-          >
-            <div class="mb-2 text-purple-400">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke-width="1.5"
-                stroke="currentColor"
-                class="w-9 h-9 mx-auto"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  d="M7.5 21L3 16.5m0 0L7.5 12M3 16.5h13.5m0-13.5L21 7.5m0 0L16.5 12M21 7.5H7.5"
-                />
-              </svg>
-            </div>
-            <h3 class="font-bold text-purple-400 text-lg">
-              Driver (Translator)
-            </h3>
-            <p class="text-slate-400 text-base mt-2">
-              Chuyển lệnh WebDriver → lệnh native.
-            </p>
-          </div>
-          <div
-            class="glass p-5 rounded-xl card-hover text-center border-b-4 border-green-500"
-          >
-            <div class="mb-2 text-green-400">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke-width="1.5"
-                stroke="currentColor"
-                class="w-9 h-9 mx-auto"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  d="M15.59 14.37a6 6 0 01-5.84 7.38v-4.8m5.84-2.58a14.98 14.98 0 006.16-12.12A14.98 14.98 0 009.631 8.41m5.96 5.96a14.926 14.926 0 01-5.841 2.58m-.119-8.54a6 6 0 00-7.381 5.84h4.8m2.581-5.84a14.927 14.927 0 00-2.58 5.84m2.699 2.7c-.103.021-.207.041-.311.06a15.09 15.09 0 01-2.448-2.448 14.9 14.9 0 01.06-.312m-2.24 2.39a4.493 4.493 0 00-1.757 4.306 4.493 4.493 0 004.306-1.758M16.5 9a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0z"
-                />
-              </svg>
-            </div>
-            <h3 class="font-bold text-green-400 text-lg">Agent (Executor)</h3>
-            <p class="text-slate-400 text-base mt-2">
-              Thực thi trên thiết bị, khởi động app.
-            </p>
-          </div>
-        </div>
-        <div class="glass p-5 rounded-xl border-l-4 border-amber-500">
-          <h4 class="font-bold text-amber-400 mb-2 flex items-center gap-2">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke-width="1.5"
-              stroke="currentColor"
-              class="w-5 h-5 flex-shrink-0"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                d="M12 18v-5.25m0 0a6.01 6.01 0 001.5-.189m-1.5.189a6.01 6.01 0 01-1.5-.189m3.75 7.478a12.06 12.06 0 01-4.5 0m3.75 2.383a14.406 14.406 0 01-3 0M14.25 18v-.192c0-.983.658-1.823 1.508-2.316a7.5 7.5 0 10-7.517 0c.85.493 1.509 1.333 1.509 2.316V18"
-              />
-            </svg>
-            Điểm khác biệt với 1.x
-          </h4>
-          <ul class="text-slate-300 text-base space-y-1.5">
-            <li>
-              • <strong>Cài Driver riêng</strong>: Chỉ cài những gì cần dùng.
-            </li>
-            <li>• <strong>Cập nhật độc lập</strong>: Không chờ Server mới.</li>
-            <li>
-              • <strong>Mở rộng Plugin</strong>: Tự viết Plugin tùy chỉnh.
+        <div>
+          <p class="text-slate-400 text-xs uppercase tracking-widest font-bold mb-1">
+            Sinh viên thực hiện
+          </p>
+          <ul class="text-base text-white space-y-1">
+            <li class="flex items-center">
+              <span class="w-2 h-2 bg-blue-400 rounded-full mr-2"></span>Trần
+              Tuấn Anh
             </li>
           </ul>
         </div>
       </div>
+    </div>
 
-      <!-- SLIDE 7: Luồng hoạt động + Desired Capabilities (MỚI) -->
-      <div id="slide-7" class="slide w-full max-w-6xl p-6 hidden">
-        <h2 class="text-4xl font-extrabold text-white mb-6">
-          Luồng Hoạt Động: Từ Code Đến Kết Quả
-        </h2>
-        <div class="grid grid-cols-2 gap-5">
-          <div class="glass p-5 rounded-xl">
-            <ol class="space-y-4 relative border-l-2 border-blue-500/30 ml-3">
-              <li class="pl-6 relative">
-                <span
-                  class="absolute -left-[7px] top-1 w-3.5 h-3.5 rounded-full bg-blue-500 border-2 border-slate-900"
-                ></span>
-                <h4 class="font-bold text-sm text-white">
-                  1. Khởi động Server
-                </h4>
-                <p class="text-slate-400 text-xs mt-0.5">
-                  Appium lắng nghe tại cổng mặc định 4723.
-                </p>
-              </li>
-              <li class="pl-6 relative">
-                <span
-                  class="absolute -left-[7px] top-1 w-3.5 h-3.5 rounded-full bg-purple-500 border-2 border-slate-900"
-                ></span>
-                <h4 class="font-bold text-sm text-white">
-                  2. Gửi Desired Capabilities
-                </h4>
-                <p class="text-slate-400 text-xs mt-0.5">
-                  Client gửi JSON cấu hình: "Test app X trên Android Y".
-                </p>
-              </li>
-              <li class="pl-6 relative">
-                <span
-                  class="absolute -left-[7px] top-1 w-3.5 h-3.5 rounded-full bg-green-500 border-2 border-slate-900"
-                ></span>
-                <h4 class="font-bold text-sm text-white">
-                  3. Khởi tạo Session
-                </h4>
-                <p class="text-slate-400 text-xs mt-0.5">
-                  Server tạo Session ID, khởi động thiết bị/giả lập.
-                </p>
-              </li>
-              <li class="pl-6 relative">
-                <span
-                  class="absolute -left-[7px] top-1 w-3.5 h-3.5 rounded-full bg-amber-500 border-2 border-slate-900"
-                ></span>
-                <h4 class="font-bold text-sm text-white">4. Thực thi lệnh</h4>
-                <p class="text-slate-400 text-xs mt-0.5">
-                  Click, Swipe được gửi liên tục qua Driver/Agent.
-                </p>
-              </li>
-              <li class="pl-6 relative">
-                <span
-                  class="absolute -left-[7px] top-1 w-3.5 h-3.5 rounded-full bg-red-500 border-2 border-slate-900"
-                ></span>
-                <h4 class="font-bold text-sm text-white">5. Báo cáo</h4>
-                <p class="text-slate-400 text-xs mt-0.5">
-                  Kết quả (Pass/Fail) gửi ngược về Client → Report.
-                </p>
-              </li>
-            </ol>
+    <!-- SLIDE 1: Appium là gì + 4 Triết lý -->
+    <div id="slide-1"
+      class="slide w-full max-w-6xl p-8 hidden absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
+      <h2 class="text-5xl font-extrabold text-white mb-2">
+        Tự Động Hóa Kiểm Thử Mobile
+      </h2>
+      <p class="text-xl text-slate-400 mb-8">
+        Framework mã nguồn mở — Hỗ trợ
+        <span class="text-blue-400 font-semibold">Native</span>,
+        <span class="text-purple-400 font-semibold">Hybrid</span>,
+        <span class="text-green-400 font-semibold">Mobile Web</span>
+      </p>
+      <div class="grid grid-cols-2 gap-5">
+        <div class="glass p-5 rounded-xl card-hover border-l-4 border-blue-500">
+          <div class="flex items-center gap-2 mb-2">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+              stroke="currentColor" class="w-7 h-7 text-blue-400 flex-shrink-0">
+              <path stroke-linecap="round" stroke-linejoin="round"
+                d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
+            </svg>
+            <h3 class="text-xl font-bold text-blue-400">
+              Giữ nguyên app gốc
+            </h3>
           </div>
-          <div>
-            <div class="glass-light rounded-xl p-5 border border-amber-500/30">
-              <h4
-                class="font-bold text-amber-400 text-sm mb-3 flex items-center gap-2"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke-width="1.5"
-                  stroke="currentColor"
-                  class="w-5 h-5 flex-shrink-0"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"
-                  />
-                </svg>
-                Appium 2.x: Tiền tố
-                <code class="bg-white/10 px-1.5 rounded">appium:</code> bắt buộc
+          <p class="text-slate-300 text-base">
+            Test đúng file .apk/.ipa gốc, không chèn SDK.
+          </p>
+        </div>
+        <div class="glass p-5 rounded-xl card-hover border-l-4 border-purple-500">
+          <div class="flex items-center gap-2 mb-2">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+              stroke="currentColor" class="w-7 h-7 text-purple-400 flex-shrink-0">
+              <path stroke-linecap="round" stroke-linejoin="round"
+                d="M17.25 6.75L22.5 12l-5.25 5.25m-10.5 0L1.5 12l5.25-5.25m7.5-3l-4.5 16.5" />
+            </svg>
+            <h3 class="text-xl font-bold text-purple-400">
+              Chọn ngôn ngữ tự do
+            </h3>
+          </div>
+          <p class="text-slate-300 text-base">
+            Java, Python, JS, C#, Ruby... tùy đội ngũ.
+          </p>
+        </div>
+        <div class="glass p-5 rounded-xl card-hover border-l-4 border-green-500">
+          <div class="flex items-center gap-2 mb-2">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+              stroke="currentColor" class="w-7 h-7 text-green-400 flex-shrink-0">
+              <path stroke-linecap="round" stroke-linejoin="round"
+                d="M13.19 8.688a4.5 4.5 0 011.242 7.244l-4.5 4.5a4.5 4.5 0 01-6.364-6.364l1.757-1.757m13.35-.622l1.757-1.757a4.5 4.5 0 00-6.364-6.364l-4.5 4.5a4.5 4.5 0 001.242 7.244" />
+            </svg>
+            <h3 class="text-xl font-bold text-green-400">
+              Tận dụng chuẩn W3C
+            </h3>
+          </div>
+          <p class="text-slate-300 text-base">
+            Selenium WebDriver API quen thuộc.
+          </p>
+        </div>
+        <div class="glass p-5 rounded-xl card-hover border-l-4 border-amber-500">
+          <div class="flex items-center gap-2 mb-2">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+              stroke="currentColor" class="w-7 h-7 text-amber-400 flex-shrink-0">
+              <path stroke-linecap="round" stroke-linejoin="round"
+                d="M12 21a9.004 9.004 0 008.716-6.747M12 21a9.004 9.004 0 01-8.716-6.747M12 21c2.485 0 4.5-4.03 4.5-9S14.485 3 12 3m0 18c-2.485 0-4.5-4.03-4.5-9S9.515 3 12 3m0 0a8.997 8.997 0 017.843 4.582M12 3a8.997 8.997 0 00-7.843 4.582m15.686 0A11.953 11.953 0 0112 10.5c-2.998 0-5.74-1.1-7.843-2.918m15.686 0A8.959 8.959 0 0121 12c0 .778-.099 1.533-.284 2.253m0 0A17.919 17.919 0 0112 16.5c-3.162 0-6.133-.815-8.716-2.247m0 0A9.015 9.015 0 013 12c0-1.605.42-3.113 1.157-4.418" />
+            </svg>
+            <h3 class="text-xl font-bold text-amber-400">
+              Miễn phí, cập nhật liên tục
+            </h3>
+          </div>
+          <p class="text-slate-300 text-base">
+            Cộng đồng lớn, cập nhật liên tục, miễn phí.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE 2: History -->
+    <div id="slide-2"
+      class="slide w-full max-w-5xl p-8 hidden absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
+      <h2 class="text-5xl font-extrabold text-white mb-8">
+        Lịch Sử Hình Thành
+      </h2>
+      <div class="glass p-8 rounded-2xl" id="history-container"></div>
+    </div>
+
+    <!-- SLIDE 3: Hệ sinh thái Client-Server-Device -->
+    <div id="slide-3"
+      class="slide w-full max-w-6xl p-6 hidden absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
+      <h2 class="text-4xl font-extrabold text-white mb-1 text-center">
+        3 Thành Phần Cốt Lõi
+      </h2>
+      <p class="text-center text-slate-400 mb-6 text-lg">
+        Client — Server — Device
+      </p>
+      <div class="flex items-center justify-center gap-3 py-6 glass rounded-2xl p-6 mb-5">
+        <div onclick="showArchDetail('client')" class="arch-box glass-light p-5 rounded-xl w-1/4 text-center group">
+          <div class="mb-2 text-blue-400">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+              stroke="currentColor" class="w-10 h-10 mx-auto">
+              <path stroke-linecap="round" stroke-linejoin="round"
+                d="M9 17.25v1.007a3 3 0 01-.879 2.122L7.5 21h9l-.621-.621A3 3 0 0115 18.257V17.25m6-12V15a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 15V5.25m18 0A2.25 2.25 0 0018.75 3H5.25A2.25 2.25 0 003 5.25m18 0V12a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 12V5.25" />
+            </svg>
+          </div>
+          <div class="font-bold text-lg text-white">Appium Client</div>
+          <div class="text-xs text-slate-400 mt-1">Test Scripts</div>
+        </div>
+        <div class="flex flex-col items-center px-3">
+          <span class="text-[10px] font-mono text-slate-500 glass-light px-2 py-0.5 rounded mb-1">HTTP / JSON</span>
+          <svg class="w-6 h-6 text-blue-500 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+          </svg>
+        </div>
+        <div onclick="showArchDetail('server')" class="arch-box glass-light p-5 rounded-xl w-1/4 text-center group">
+          <div class="mb-2 text-amber-400">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+              stroke="currentColor" class="w-10 h-10 mx-auto">
+              <path stroke-linecap="round" stroke-linejoin="round"
+                d="M5.25 14.25h13.5m-13.5 0a3 3 0 01-3-3m3 3a3 3 0 100 6h13.5a3 3 0 100-6m-16.5-3a3 3 0 013-3h13.5a3 3 0 013 3m-19.5 0a4.5 4.5 0 01.9-2.7L5.737 5.1a3.375 3.375 0 012.7-1.35h7.126c1.062 0 2.062.5 2.7 1.35l2.587 3.45a4.5 4.5 0 01.9 2.7m0 0a3 3 0 01-3 3m0 3h.008v.008h-.008v-.008zm0-6h.008v.008h-.008v-.008zm-3 6h.008v.008h-.008v-.008zm0-6h.008v.008h-.008v-.008z" />
+            </svg>
+          </div>
+          <div class="font-bold text-lg text-white">Appium Server</div>
+          <div class="text-xs text-slate-400 mt-1">Node.js API</div>
+        </div>
+        <div class="flex flex-col items-center px-3">
+          <span class="text-[10px] font-mono text-slate-500 glass-light px-2 py-0.5 rounded mb-1">W3C WebDriver</span>
+          <svg class="w-6 h-6 text-green-500 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+          </svg>
+        </div>
+        <div onclick="showArchDetail('device')" class="arch-box glass-light p-5 rounded-xl w-1/4 text-center group">
+          <div class="mb-2 text-green-400">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+              stroke="currentColor" class="w-10 h-10 mx-auto">
+              <path stroke-linecap="round" stroke-linejoin="round"
+                d="M10.5 1.5H8.25A2.25 2.25 0 006 3.75v16.5a2.25 2.25 0 002.25 2.25h7.5A2.25 2.25 0 0018 20.25V3.75a2.25 2.25 0 00-2.25-2.25H13.5m-3 0V3h3V1.5m-3 0h3m-3 18.75h3" />
+            </svg>
+          </div>
+          <div class="font-bold text-lg text-white">Device</div>
+          <div class="text-xs text-slate-400 mt-1">Emulator / Real</div>
+        </div>
+      </div>
+      <!-- Bảng vai trò -->
+      <div class="glass rounded-xl overflow-hidden text-sm">
+        <table class="min-w-full">
+          <thead class="bg-white/10">
+            <tr>
+              <th class="px-5 py-3 text-left font-bold text-blue-400 uppercase text-xs">
+                Thành phần
+              </th>
+              <th class="px-5 py-3 text-left font-bold text-blue-400 uppercase text-xs">
+                Vai trò chính
+              </th>
+              <th class="px-5 py-3 text-left font-bold text-blue-400 uppercase text-xs">
+                Ví dụ thực tế
+              </th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-white/5">
+            <tr>
+              <td class="px-5 py-3 font-medium text-white">Appium Client</td>
+              <td class="px-5 py-3 text-slate-300">
+                Chứa Test Scripts, gửi lệnh HTTP tới Server
+              </td>
+              <td class="px-5 py-3 text-slate-400">
+                Java (TestNG), Python (Pytest)
+              </td>
+            </tr>
+            <tr>
+              <td class="px-5 py-3 font-medium text-white">Appium Server</td>
+              <td class="px-5 py-3 text-slate-300">
+                "Trái tim" — tiếp nhận, dịch và điều phối lệnh
+              </td>
+              <td class="px-5 py-3 text-slate-400">
+                Node.js (CLI hoặc Desktop app)
+              </td>
+            </tr>
+            <tr>
+              <td class="px-5 py-3 font-medium text-white">
+                Device / Emulator
+              </td>
+              <td class="px-5 py-3 text-slate-300">
+                Thực thi hành động trên ứng dụng
+              </td>
+              <td class="px-5 py-3 text-slate-400">
+                Android Emulator, iPhone thật
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div id="arch-detail-panel" class="mt-4 glass border-l-4 border-blue-500 p-4 rounded-r-lg hidden transition-all">
+        <h3 id="arch-detail-title" class="font-bold text-lg text-blue-400 mb-1"></h3>
+        <p id="arch-detail-desc" class="text-slate-300 text-sm"></p>
+      </div>
+    </div>
+
+    <!-- SLIDE 4: WebDriver API -->
+    <div id="slide-4"
+      class="slide w-full max-w-5xl p-8 hidden absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
+      <h2 class="text-5xl font-extrabold text-white mb-2">WebDriver API</h2>
+      <p class="text-slate-400 mb-8 text-xl">
+        Chuẩn W3C — Viết lệnh bằng bất kỳ ngôn ngữ nào.
+      </p>
+      <div class="glass p-8 rounded-2xl">
+        <ol class="space-y-5 relative border-l-2 border-blue-500/30 ml-4">
+          <li class="pl-8 relative">
+            <span
+              class="absolute -left-[9px] top-1 w-4 h-4 rounded-full bg-blue-500 border-2 border-slate-900 shadow-lg shadow-blue-500/30"></span>
+            <h4 class="font-bold text-lg text-white">1. Viết lệnh</h4>
+            <p class="text-slate-400 mt-1 text-base">
+              Gọi
+              <code class="bg-white/10 px-2 py-0.5 rounded text-blue-300">driver.click()</code>
+              từ script
+            </p>
+          </li>
+          <li class="pl-8 relative">
+            <span
+              class="absolute -left-[9px] top-1 w-4 h-4 rounded-full bg-purple-500 border-2 border-slate-900 shadow-lg shadow-purple-500/30"></span>
+            <h4 class="font-bold text-lg text-white">2. Đóng gói lệnh</h4>
+            <p class="text-slate-400 mt-1 text-base">
+              Chuyển thành
+              <code class="bg-white/10 px-2 py-0.5 rounded text-purple-300">HTTP POST</code>
+              gửi tới Server
+            </p>
+          </li>
+          <li class="pl-8 relative">
+            <span
+              class="absolute -left-[9px] top-1 w-4 h-4 rounded-full bg-green-500 border-2 border-slate-900 shadow-lg shadow-green-500/30"></span>
+            <h4 class="font-bold text-lg text-white">3. Server diện giải</h4>
+            <p class="text-slate-400 mt-1 text-base">
+              Nhận lệnh, chọn Driver phù hợp, ra lệnh cho thiết bị
+            </p>
+          </li>
+          <li class="pl-8 relative">
+            <span
+              class="absolute -left-[9px] top-1 w-4 h-4 rounded-full bg-amber-500 border-2 border-slate-900 shadow-lg shadow-amber-500/30"></span>
+            <h4 class="font-bold text-lg text-white">
+              4. Thực thi hành động
+            </h4>
+            <p class="text-slate-400 mt-1 text-base">
+              Thiết bị nhấp vào đúng Element được yêu cầu
+            </p>
+          </li>
+        </ol>
+      </div>
+    </div>
+
+    <!-- SLIDE 5: Drivers đa nền tảng -->
+    <div id="slide-5"
+      class="slide w-full max-w-5xl p-8 hidden absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
+      <h2 class="text-5xl font-extrabold text-white mb-2">
+        Hỗ Trợ 4 Nền Tảng Chính
+      </h2>
+      <p class="text-slate-400 mb-8 text-xl">
+        Mỗi nền tảng có Driver chuyên biệt riêng.
+      </p>
+      <div class="grid grid-cols-2 gap-5">
+        <div class="glass p-5 rounded-xl card-hover border-t-4 border-green-500">
+          <div class="flex items-center gap-2 mb-3">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+              stroke="currentColor" class="w-7 h-7 text-green-400 flex-shrink-0">
+              <path stroke-linecap="round" stroke-linejoin="round"
+                d="M8.25 3v1.5M4.5 8.25H3m18 0h-1.5M4.5 12H3m18 0h-1.5m-15 3.75H3m18 0h-1.5M8.25 19.5V21M12 3v1.5m0 15V21m3.75-18v1.5m0 15V21m-9-1.5h10.5a2.25 2.25 0 002.25-2.25V6.75a2.25 2.25 0 00-2.25-2.25H6.75A2.25 2.25 0 004.5 6.75v10.5a2.25 2.25 0 002.25 2.25zm.75-12h9v9h-9v-9z" />
+            </svg>
+            <h3 class="text-xl font-bold text-green-400">UIAutomator2</h3>
+          </div>
+          <p class="text-slate-300 text-base">
+            <strong>Android</strong> 4.2+ — Google recommended.
+          </p>
+        </div>
+        <div class="glass p-5 rounded-xl card-hover border-t-4 border-emerald-500">
+          <div class="flex items-center gap-2 mb-3">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+              stroke="currentColor" class="w-7 h-7 text-emerald-400 flex-shrink-0">
+              <path stroke-linecap="round" stroke-linejoin="round"
+                d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z" />
+            </svg>
+            <h3 class="text-xl font-bold text-emerald-400">Espresso</h3>
+          </div>
+          <p class="text-slate-300 text-base">
+            <strong>Android</strong> — Tốc độ cao, đồng bộ UI tốt.
+          </p>
+        </div>
+        <div class="glass p-5 rounded-xl card-hover border-t-4 border-slate-400">
+          <div class="flex items-center gap-2 mb-3">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+              stroke="currentColor" class="w-7 h-7 text-slate-300 flex-shrink-0">
+              <path stroke-linecap="round" stroke-linejoin="round"
+                d="M9 17.25v1.007a3 3 0 01-.879 2.122L7.5 21h9l-.621-.621A3 3 0 0115 18.257V17.25m6-12V15a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 15V5.25m18 0A2.25 2.25 0 0018.75 3H5.25A2.25 2.25 0 003 5.25m18 0V12a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 12V5.25" />
+            </svg>
+            <h3 class="text-xl font-bold text-slate-300">XCUITest</h3>
+          </div>
+          <p class="text-slate-300 text-base">
+            <strong>iOS</strong> — Driver duy nhất, Apple standard.
+          </p>
+        </div>
+        <div class="glass p-5 rounded-xl card-hover border-t-4 border-blue-500">
+          <div class="flex items-center gap-2 mb-3">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+              stroke="currentColor" class="w-7 h-7 text-blue-400 flex-shrink-0">
+              <path stroke-linecap="round" stroke-linejoin="round"
+                d="M3.75 6A2.25 2.25 0 016 3.75h2.25A2.25 2.25 0 0110.5 6v2.25a2.25 2.25 0 01-2.25 2.25H6a2.25 2.25 0 01-2.25-2.25V6zM3.75 15.75A2.25 2.25 0 016 13.5h2.25a2.25 2.25 0 012.25 2.25V18a2.25 2.25 0 01-2.25 2.25H6A2.25 2.25 0 013.75 18v-2.25zM13.5 6a2.25 2.25 0 012.25-2.25H18A2.25 2.25 0 0120.25 6v2.25A2.25 2.25 0 0118 10.5h-2.25a2.25 2.25 0 01-2.25-2.25V6zM13.5 15.75a2.25 2.25 0 012.25-2.25H18a2.25 2.25 0 012.25 2.25V18A2.25 2.25 0 0118 20.25h-2.25A2.25 2.25 0 0113.5 18v-2.25z" />
+            </svg>
+            <h3 class="text-xl font-bold text-blue-400">WinAppDriver</h3>
+          </div>
+          <p class="text-slate-300 text-base">
+            <strong>Windows Desktop</strong> — Microsoft official.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE 6: Kiến trúc Appium 2.x (MỚI) -->
+    <div id="slide-6"
+      class="slide w-full max-w-6xl p-8 hidden absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
+      <div class="flex items-center mb-6">
+        <h2 class="text-5xl font-extrabold text-white mr-3">
+          Mô-đun hóa Hoàn Toàn Từ 2.x
+        </h2>
+        <span class="bg-blue-500 text-white text-xs font-bold px-3 py-1 rounded-full">MỚI</span>
+      </div>
+      <p class="text-slate-400 mb-6 text-xl">
+        Tách riêng Server, Driver, Plugin — cài đặt độc lập.
+      </p>
+      <div class="grid grid-cols-3 gap-5 mb-6">
+        <div class="glass p-5 rounded-xl card-hover text-center border-b-4 border-blue-500">
+          <div class="mb-2 text-blue-400">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+              stroke="currentColor" class="w-9 h-9 mx-auto">
+              <path stroke-linecap="round" stroke-linejoin="round"
+                d="M10.5 6h9.75M10.5 6a1.5 1.5 0 11-3 0m3 0a1.5 1.5 0 10-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-9.75 0h9.75" />
+            </svg>
+          </div>
+          <h3 class="font-bold text-blue-400 text-lg">Server (Manager)</h3>
+          <p class="text-slate-400 text-base mt-2">
+            Tiếp nhận REST API, điều phối luồng.
+          </p>
+        </div>
+        <div class="glass p-5 rounded-xl card-hover text-center border-b-4 border-purple-500">
+          <div class="mb-2 text-purple-400">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+              stroke="currentColor" class="w-9 h-9 mx-auto">
+              <path stroke-linecap="round" stroke-linejoin="round"
+                d="M7.5 21L3 16.5m0 0L7.5 12M3 16.5h13.5m0-13.5L21 7.5m0 0L16.5 12M21 7.5H7.5" />
+            </svg>
+          </div>
+          <h3 class="font-bold text-purple-400 text-lg">
+            Driver (Translator)
+          </h3>
+          <p class="text-slate-400 text-base mt-2">
+            Chuyển lệnh WebDriver → lệnh native.
+          </p>
+        </div>
+        <div class="glass p-5 rounded-xl card-hover text-center border-b-4 border-green-500">
+          <div class="mb-2 text-green-400">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+              stroke="currentColor" class="w-9 h-9 mx-auto">
+              <path stroke-linecap="round" stroke-linejoin="round"
+                d="M15.59 14.37a6 6 0 01-5.84 7.38v-4.8m5.84-2.58a14.98 14.98 0 006.16-12.12A14.98 14.98 0 009.631 8.41m5.96 5.96a14.926 14.926 0 01-5.841 2.58m-.119-8.54a6 6 0 00-7.381 5.84h4.8m2.581-5.84a14.927 14.927 0 00-2.58 5.84m2.699 2.7c-.103.021-.207.041-.311.06a15.09 15.09 0 01-2.448-2.448 14.9 14.9 0 01.06-.312m-2.24 2.39a4.493 4.493 0 00-1.757 4.306 4.493 4.493 0 004.306-1.758M16.5 9a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0z" />
+            </svg>
+          </div>
+          <h3 class="font-bold text-green-400 text-lg">Agent (Executor)</h3>
+          <p class="text-slate-400 text-base mt-2">
+            Thực thi trên thiết bị, khởi động app.
+          </p>
+        </div>
+      </div>
+      <div class="glass p-5 rounded-xl border-l-4 border-amber-500">
+        <h4 class="font-bold text-amber-400 mb-2 flex items-center gap-2">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+            stroke="currentColor" class="w-5 h-5 flex-shrink-0">
+            <path stroke-linecap="round" stroke-linejoin="round"
+              d="M12 18v-5.25m0 0a6.01 6.01 0 001.5-.189m-1.5.189a6.01 6.01 0 01-1.5-.189m3.75 7.478a12.06 12.06 0 01-4.5 0m3.75 2.383a14.406 14.406 0 01-3 0M14.25 18v-.192c0-.983.658-1.823 1.508-2.316a7.5 7.5 0 10-7.517 0c.85.493 1.509 1.333 1.509 2.316V18" />
+          </svg>
+          Điểm khác biệt với 1.x
+        </h4>
+        <ul class="text-slate-300 text-base space-y-1.5">
+          <li>
+            • <strong>Cài Driver riêng</strong>: Chỉ cài những gì cần dùng.
+          </li>
+          <li>• <strong>Cập nhật độc lập</strong>: Không chờ Server mới.</li>
+          <li>
+            • <strong>Mở rộng Plugin</strong>: Tự viết Plugin tùy chỉnh.
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- SLIDE 7: Luồng hoạt động + Desired Capabilities (MỚI) -->
+    <div id="slide-7"
+      class="slide w-full max-w-6xl p-6 hidden absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
+      <h2 class="text-4xl font-extrabold text-white mb-6">
+        Luồng Hoạt Động: Từ Code Đến Kết Quả
+      </h2>
+      <div class="grid grid-cols-2 gap-5">
+        <div class="glass p-5 rounded-xl">
+          <ol class="space-y-4 relative border-l-2 border-blue-500/30 ml-3">
+            <li class="pl-6 relative">
+              <span
+                class="absolute -left-[7px] top-1 w-3.5 h-3.5 rounded-full bg-blue-500 border-2 border-slate-900"></span>
+              <h4 class="font-bold text-sm text-white">
+                1. Khởi động Server
               </h4>
-              <div
-                class="bg-slate-900/80 text-slate-100 p-4 rounded-lg font-mono text-xs leading-relaxed"
-              >
-                <span class="text-slate-500">// Desired Capabilities</span
-                ><br />
-                {<br />
-                &nbsp;&nbsp;<span class="text-green-400">"platformName"</span>:
-                <span class="text-amber-300">"Android"</span>,<br />
-                &nbsp;&nbsp;<span class="text-green-400"
-                  >"appium:automationName"</span
-                >: <span class="text-amber-300">"UiAutomator2"</span>,<br />
-                &nbsp;&nbsp;<span class="text-green-400"
-                  >"appium:deviceName"</span
-                >: <span class="text-amber-300">"Pixel_8_Pro"</span>,<br />
-                &nbsp;&nbsp;<span class="text-green-400">"appium:app"</span>:
-                <span class="text-amber-300">"/path/to/app.apk"</span>,<br />
-                &nbsp;&nbsp;<span class="text-green-400">"appium:noReset"</span
-                >: <span class="text-blue-300">true</span><br />
-                }
-              </div>
+              <p class="text-slate-400 text-xs mt-0.5">
+                Appium lắng nghe tại cổng mặc định 4723.
+              </p>
+            </li>
+            <li class="pl-6 relative">
+              <span
+                class="absolute -left-[7px] top-1 w-3.5 h-3.5 rounded-full bg-purple-500 border-2 border-slate-900"></span>
+              <h4 class="font-bold text-sm text-white">
+                2. Gửi Desired Capabilities
+              </h4>
+              <p class="text-slate-400 text-xs mt-0.5">
+                Client gửi JSON cấu hình: "Test app X trên Android Y".
+              </p>
+            </li>
+            <li class="pl-6 relative">
+              <span
+                class="absolute -left-[7px] top-1 w-3.5 h-3.5 rounded-full bg-green-500 border-2 border-slate-900"></span>
+              <h4 class="font-bold text-sm text-white">
+                3. Khởi tạo Session
+              </h4>
+              <p class="text-slate-400 text-xs mt-0.5">
+                Server tạo Session ID, khởi động thiết bị/giả lập.
+              </p>
+            </li>
+            <li class="pl-6 relative">
+              <span
+                class="absolute -left-[7px] top-1 w-3.5 h-3.5 rounded-full bg-amber-500 border-2 border-slate-900"></span>
+              <h4 class="font-bold text-sm text-white">4. Thực thi lệnh</h4>
+              <p class="text-slate-400 text-xs mt-0.5">
+                Click, Swipe được gửi liên tục qua Driver/Agent.
+              </p>
+            </li>
+            <li class="pl-6 relative">
+              <span
+                class="absolute -left-[7px] top-1 w-3.5 h-3.5 rounded-full bg-red-500 border-2 border-slate-900"></span>
+              <h4 class="font-bold text-sm text-white">5. Báo cáo</h4>
+              <p class="text-slate-400 text-xs mt-0.5">
+                Kết quả (Pass/Fail) gửi ngược về Client → Report.
+              </p>
+            </li>
+          </ol>
+        </div>
+        <div>
+          <div class="glass-light rounded-xl p-5 border border-amber-500/30">
+            <h4 class="font-bold text-amber-400 text-sm mb-3 flex items-center gap-2">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                stroke="currentColor" class="w-5 h-5 flex-shrink-0">
+                <path stroke-linecap="round" stroke-linejoin="round"
+                  d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+              </svg>
+              Appium 2.x: Tiền tố
+              <code class="bg-white/10 px-1.5 rounded">appium:</code> bắt buộc
+            </h4>
+            <div class="bg-slate-900/80 text-slate-100 p-4 rounded-lg font-mono text-xs leading-relaxed">
+              <span class="text-slate-500">// Desired Capabilities</span><br />
+              {<br />
+              &nbsp;&nbsp;<span class="text-green-400">"platformName"</span>:
+              <span class="text-amber-300">"Android"</span>,<br />
+              &nbsp;&nbsp;<span class="text-green-400">"appium:automationName"</span>: <span
+                class="text-amber-300">"UiAutomator2"</span>,<br />
+              &nbsp;&nbsp;<span class="text-green-400">"appium:deviceName"</span>: <span
+                class="text-amber-300">"Pixel_8_Pro"</span>,<br />
+              &nbsp;&nbsp;<span class="text-green-400">"appium:app"</span>:
+              <span class="text-amber-300">"/path/to/app.apk"</span>,<br />
+              &nbsp;&nbsp;<span class="text-green-400">"appium:noReset"</span>: <span
+                class="text-blue-300">true</span><br />
+              }
             </div>
           </div>
         </div>
       </div>
+    </div>
 
-      <!-- SLIDE 8: Comparison Chart -->
-      <div id="slide-8" class="slide w-full max-w-5xl p-8 hidden">
-        <h2 class="text-4xl font-extrabold text-white mb-6 text-center">
-          Appium vượt trội về độ linh hoạt
-        </h2>
-        <div
-          class="glass p-6 rounded-2xl h-[480px] w-full flex items-center justify-center"
-        >
-          <canvas id="comparisonChart"></canvas>
-        </div>
+    <!-- SLIDE 8: Comparison Chart -->
+    <div id="slide-8"
+      class="slide w-full max-w-5xl p-8 hidden absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
+      <h2 class="text-4xl font-extrabold text-white mb-6 text-center">
+        Appium vượt trội về độ linh hoạt
+      </h2>
+      <div class="glass p-6 rounded-2xl h-[480px] w-full flex items-center justify-center">
+        <canvas id="comparisonChart"></canvas>
       </div>
+    </div>
 
-      <!-- SLIDE 9: Pros & Cons -->
-      <div id="slide-9" class="slide w-full max-w-6xl p-8 hidden text-center">
-        <h2 class="text-5xl font-extrabold text-white mb-10">
-          Ưu & Nhược Điểm
-        </h2>
-        <div class="grid grid-cols-2 gap-8 text-left">
-          <div class="glass p-7 rounded-2xl border-t-4 border-green-500">
-            <h3
-              class="text-2xl font-bold text-green-400 mb-5 flex items-center gap-2"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-                fill="currentColor"
-                class="w-7 h-7 flex-shrink-0"
-              >
-                <path
-                  fill-rule="evenodd"
-                  d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12zm13.36-1.814a.75.75 0 10-1.22-.872l-3.236 4.53L9.53 12.22a.75.75 0 00-1.06 1.06l2.25 2.25a.75.75 0 001.14-.094l3.75-5.25z"
-                  clip-rule="evenodd"
-                />
-              </svg>
-              Ưu Điểm
-            </h3>
-            <ul class="space-y-3 text-lg">
-              <li class="flex items-start">
-                <span class="text-green-400 mr-3 mt-0.5">●</span
-                ><span class="text-slate-300"
-                  >Code 1 lần, chạy nhiều nơi (cross-platform).</span
-                >
-              </li>
-              <li class="flex items-start">
-                <span class="text-green-400 mr-3 mt-0.5">●</span
-                ><span class="text-slate-300"
-                  >Tự do chọn ngôn ngữ (Java, Python, JS, C#...).</span
-                >
-              </li>
-              <li class="flex items-start">
-                <span class="text-green-400 mr-3 mt-0.5">●</span
-                ><span class="text-slate-300"
-                  >Cộng đồng hỗ trợ cực lớn, mã nguồn mở miễn phí.</span
-                >
-              </li>
-            </ul>
-          </div>
-          <div class="glass p-7 rounded-2xl border-t-4 border-red-500">
-            <h3
-              class="text-2xl font-bold text-red-400 mb-5 flex items-center gap-2"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-                fill="currentColor"
-                class="w-7 h-7 flex-shrink-0"
-              >
-                <path
-                  fill-rule="evenodd"
-                  d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25zm-1.72 6.97a.75.75 0 10-1.06 1.06L10.94 12l-1.72 1.72a.75.75 0 101.06 1.06L12 13.06l1.72 1.72a.75.75 0 101.06-1.06L13.06 12l1.72-1.72a.75.75 0 10-1.06-1.06L12 10.94l-1.72-1.72z"
-                  clip-rule="evenodd"
-                />
-              </svg>
-              Nhược Điểm
-            </h3>
-            <ul class="space-y-3 text-lg">
-              <li class="flex items-start">
-                <span class="text-red-400 mr-3 mt-0.5">●</span
-                ><span class="text-slate-300"
-                  >Tốc độ chậm hơn Native thuần.</span
-                >
-              </li>
-              <li class="flex items-start">
-                <span class="text-red-400 mr-3 mt-0.5">●</span
-                ><span class="text-slate-300"
-                  >Cài đặt môi trường phức tạp.</span
-                >
-              </li>
-              <li class="flex items-start">
-                <span class="text-red-400 mr-3 mt-0.5">●</span
-                ><span class="text-slate-300"
-                  >Đôi khi không ổn định (flaky tests).</span
-                >
-              </li>
-            </ul>
-          </div>
-        </div>
-      </div>
-
-      <!-- SLIDE 10: Summary Table -->
-      <div id="slide-10" class="slide w-full max-w-6xl p-8 hidden">
-        <h2 class="text-4xl font-extrabold text-white mb-8 text-center">
-          Bảng Tổng Hợp So Sánh
-        </h2>
-        <div class="glass rounded-2xl overflow-hidden text-base">
-          <table class="min-w-full divide-y divide-white/10">
-            <thead class="bg-white/10">
-              <tr>
-                <th
-                  class="px-8 py-4 text-left font-bold text-slate-400 uppercase text-xs"
-                >
-                  Tiêu chí
-                </th>
-                <th
-                  class="px-8 py-4 text-left font-bold text-blue-400 uppercase text-xs"
-                >
-                  Appium
-                </th>
-                <th
-                  class="px-8 py-4 text-left font-bold text-red-400 uppercase text-xs"
-                >
-                  Native (Espresso/XC)
-                </th>
-              </tr>
-            </thead>
-            <tbody class="divide-y divide-white/5">
-              <tr>
-                <td class="px-8 py-4 font-medium text-white">Ngôn ngữ</td>
-                <td class="px-8 py-4 text-slate-300">
-                  Đa dạng (Java, Python...)
-                </td>
-                <td class="px-8 py-4 text-slate-300">Đặc thù (Kotlin/Swift)</td>
-              </tr>
-              <tr>
-                <td class="px-8 py-4 font-medium text-white">Tốc độ</td>
-                <td class="px-8 py-4 text-amber-400">Trung bình</td>
-                <td class="px-8 py-4 text-green-400 font-bold">Rất nhanh</td>
-              </tr>
-              <tr>
-                <td class="px-8 py-4 font-medium text-white">
-                  Truy cập Source
-                </td>
-                <td class="px-8 py-4 text-green-400 font-bold">
-                  Black-box (Không cần)
-                </td>
-                <td class="px-8 py-4 text-slate-400">White-box (Cần)</td>
-              </tr>
-              <tr>
-                <td class="px-8 py-4 font-medium text-white">Kiến trúc</td>
-                <td class="px-8 py-4 text-slate-300">Client-Server</td>
-                <td class="px-8 py-4 text-slate-300">
-                  Chạy trực tiếp trên App
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      <!-- SLIDE 11: Hạn chế / Gotchas (MỚI) -->
-      <div id="slide-11" class="slide w-full max-w-5xl p-8 hidden">
-        <div class="flex items-center mb-8">
-          <h2 class="text-5xl font-extrabold text-white mr-3">
-            4 Rủi Ro Thường Gặp
-          </h2>
-          <span
-            class="bg-red-500/20 text-red-400 text-xs font-bold px-3 py-1 rounded-full border border-red-500/30"
-            >GOTCHAS</span
-          >
-        </div>
-        <div class="grid grid-cols-2 gap-5">
-          <div
-            class="glass p-5 rounded-xl card-hover border-l-4 border-red-500"
-          >
-            <h3 class="font-bold text-red-400 mb-2 flex items-center gap-2">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke-width="1.5"
-                stroke="currentColor"
-                class="w-5 h-5 flex-shrink-0"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"
-                />
-              </svg>
-              Android API Level
-            </h3>
-            <p class="text-slate-300 text-base">
-              UIAutomator2: không hỗ trợ API < 17 (Android 4.2).
-            </p>
-          </div>
-          <div
-            class="glass p-5 rounded-xl card-hover border-l-4 border-amber-500"
-          >
-            <h3 class="font-bold text-amber-400 mb-2 flex items-center gap-2">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke-width="1.5"
-                stroke="currentColor"
-                class="w-5 h-5 flex-shrink-0"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  d="M8.625 12a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H8.25m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H12m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0h-.375M21 12c0 4.556-4.03 8.25-9 8.25a9.764 9.764 0 01-2.555-.337A5.972 5.972 0 015.41 20.97a5.969 5.969 0 01-.474-.065 4.48 4.48 0 00.978-2.025c.09-.457-.133-.901-.467-1.226C3.93 16.178 3 14.189 3 12c0-4.556 4.03-8.25 9-8.25s9 3.694 9 8.25z"
-                />
-              </svg>
-              Thông báo Toast
-            </h3>
-            <p class="text-slate-300 text-base">
-              Bắt Toast Message không ổn định, nhiều hạn chế.
-            </p>
-          </div>
-          <div
-            class="glass p-5 rounded-xl card-hover border-l-4 border-purple-500"
-          >
-            <h3 class="font-bold text-purple-400 mb-2 flex items-center gap-2">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke-width="1.5"
-                stroke="currentColor"
-                class="w-5 h-5 flex-shrink-0"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z"
-                />
-              </svg>
-              Hiệu suất iOS
-            </h3>
-            <p class="text-slate-300 text-base">
-              iOS Simulator chậm hơn Android Emulator.
-            </p>
-          </div>
-          <div
-            class="glass p-5 rounded-xl card-hover border-l-4 border-slate-400"
-          >
-            <h3 class="font-bold text-slate-300 mb-2 flex items-center gap-2">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke-width="1.5"
-                stroke="currentColor"
-                class="w-5 h-5 flex-shrink-0"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  d="M6 20.25h12m-7.5-3v3m3-3v3m-10.125-3h17.25c.621 0 1.125-.504 1.125-1.125V4.875c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125z"
-                />
-              </svg>
-              Giao diện phức tạp
-            </h3>
-            <p class="text-slate-300 text-base">
-              Game, AR/VR khó định vị element chính xác.
-            </p>
-          </div>
-        </div>
-      </div>
-
-      <!-- SLIDE 12: Cài đặt + Bảng Android vs iOS -->
-      <div id="slide-12" class="slide w-full max-w-6xl p-6 hidden">
-        <h2 class="text-4xl font-extrabold text-white mb-2">
-          Sẵn Sàng Trong 3 Bước
-        </h2>
-        <p class="text-slate-400 text-base mb-5">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke-width="1.5"
-            stroke="currentColor"
-            class="w-4 h-4 inline-block mr-1 text-amber-400"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"
-            />
-          </svg>
-          Kiểm thử iOS <strong class="text-red-400">chỉ có thể</strong> thực
-          hiện trên macOS.
-        </p>
-        <div class="glass rounded-2xl overflow-hidden text-sm mb-5">
-          <table class="min-w-full divide-y divide-white/10">
-            <thead class="bg-white/10">
-              <tr>
-                <th
-                  class="px-5 py-3 text-left font-bold text-slate-400 uppercase text-xs"
-                >
-                  Công cụ
-                </th>
-                <th
-                  class="px-5 py-3 text-left font-bold text-green-400 uppercase text-xs"
-                >
-                  Android
-                </th>
-                <th
-                  class="px-5 py-3 text-left font-bold text-slate-300 uppercase text-xs"
-                >
-                  iOS
-                </th>
-              </tr>
-            </thead>
-            <tbody class="divide-y divide-white/5">
-              <tr>
-                <td class="px-5 py-2.5 font-medium text-white">
-                  Java JDK & Node.js
-                </td>
-                <td class="px-5 py-2.5 text-green-400">Bắt buộc</td>
-                <td class="px-5 py-2.5 text-green-400">Bắt buộc</td>
-              </tr>
-              <tr>
-                <td class="px-5 py-2.5 font-medium text-white">Hệ điều hành</td>
-                <td class="px-5 py-2.5 text-slate-300">Win / macOS / Linux</td>
-                <td class="px-5 py-2.5 text-red-400 font-bold">Chỉ macOS</td>
-              </tr>
-              <tr>
-                <td class="px-5 py-2.5 font-medium text-white">SDK</td>
-                <td class="px-5 py-2.5 text-slate-300">
-                  Android SDK (Android Studio)
-                </td>
-                <td class="px-5 py-2.5 text-slate-300">iOS SDK (Xcode)</td>
-              </tr>
-              <tr>
-                <td class="px-5 py-2.5 font-medium text-white">Giả lập</td>
-                <td class="px-5 py-2.5 text-slate-300">
-                  Emulator (AVD/Genymotion)
-                </td>
-                <td class="px-5 py-2.5 text-slate-300">Simulator (Xcode)</td>
-              </tr>
-              <tr>
-                <td class="px-5 py-2.5 font-medium text-white">
-                  Thiết bị thật
-                </td>
-                <td class="px-5 py-2.5 text-slate-300">
-                  Cần bật USB Debugging
-                </td>
-                <td class="px-5 py-2.5 text-slate-300">
-                  Cần Apple Dev Account
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-        <div class="glass p-4 rounded-xl border-l-4 border-blue-500">
-          <h4
-            class="font-bold text-blue-400 text-sm mb-1 flex items-center gap-2"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke-width="1.5"
-              stroke="currentColor"
-              class="w-5 h-5 flex-shrink-0"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                d="M12 18v-5.25m0 0a6.01 6.01 0 001.5-.189m-1.5.189a6.01 6.01 0 01-1.5-.189m3.75 7.478a12.06 12.06 0 01-4.5 0m3.75 2.383a14.406 14.406 0 01-3 0M14.25 18v-.192c0-.983.658-1.823 1.508-2.316a7.5 7.5 0 10-7.517 0c.85.493 1.509 1.333 1.509 2.316V18"
-              />
+    <!-- SLIDE 9: Pros & Cons -->
+    <div id="slide-9"
+      class="slide w-full max-w-6xl p-8 hidden text-center absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
+      <h2 class="text-5xl font-extrabold text-white mb-10">
+        Ưu & Nhược Điểm
+      </h2>
+      <div class="grid grid-cols-2 gap-8 text-left">
+        <div class="glass p-7 rounded-2xl border-t-4 border-green-500">
+          <h3 class="text-2xl font-bold text-green-400 mb-5 flex items-center gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
+              class="w-7 h-7 flex-shrink-0">
+              <path fill-rule="evenodd"
+                d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12zm13.36-1.814a.75.75 0 10-1.22-.872l-3.236 4.53L9.53 12.22a.75.75 0 00-1.06 1.06l2.25 2.25a.75.75 0 001.14-.094l3.75-5.25z"
+                clip-rule="evenodd" />
             </svg>
-            Appium Inspector — Công cụ "phải có"
-          </h4>
+            Ưu Điểm
+          </h3>
+          <ul class="space-y-3 text-lg">
+            <li class="flex items-start">
+              <span class="text-green-400 mr-3 mt-0.5">●</span><span class="text-slate-300">Code 1 lần, chạy nhiều nơi
+                (cross-platform).</span>
+            </li>
+            <li class="flex items-start">
+              <span class="text-green-400 mr-3 mt-0.5">●</span><span class="text-slate-300">Tự do chọn ngôn ngữ (Java,
+                Python, JS, C#...).</span>
+            </li>
+            <li class="flex items-start">
+              <span class="text-green-400 mr-3 mt-0.5">●</span><span class="text-slate-300">Cộng đồng hỗ trợ cực lớn, mã
+                nguồn mở miễn phí.</span>
+            </li>
+          </ul>
+        </div>
+        <div class="glass p-7 rounded-2xl border-t-4 border-red-500">
+          <h3 class="text-2xl font-bold text-red-400 mb-5 flex items-center gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
+              class="w-7 h-7 flex-shrink-0">
+              <path fill-rule="evenodd"
+                d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25zm-1.72 6.97a.75.75 0 10-1.06 1.06L10.94 12l-1.72 1.72a.75.75 0 101.06 1.06L12 13.06l1.72 1.72a.75.75 0 101.06-1.06L13.06 12l1.72-1.72a.75.75 0 10-1.06-1.06L12 10.94l-1.72-1.72z"
+                clip-rule="evenodd" />
+            </svg>
+            Nhược Điểm
+          </h3>
+          <ul class="space-y-3 text-lg">
+            <li class="flex items-start">
+              <span class="text-red-400 mr-3 mt-0.5">●</span><span class="text-slate-300">Tốc độ chậm hơn Native
+                thuần.</span>
+            </li>
+            <li class="flex items-start">
+              <span class="text-red-400 mr-3 mt-0.5">●</span><span class="text-slate-300">Cài đặt môi trường phức
+                tạp.</span>
+            </li>
+            <li class="flex items-start">
+              <span class="text-red-400 mr-3 mt-0.5">●</span><span class="text-slate-300">Đôi khi không ổn định (flaky
+                tests).</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE 10: Summary Table -->
+    <div id="slide-10"
+      class="slide w-full max-w-6xl p-8 hidden absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
+      <h2 class="text-4xl font-extrabold text-white mb-8 text-center">
+        Bảng Tổng Hợp So Sánh
+      </h2>
+      <div class="glass rounded-2xl overflow-hidden text-base">
+        <table class="min-w-full divide-y divide-white/10">
+          <thead class="bg-white/10">
+            <tr>
+              <th class="px-8 py-4 text-left font-bold text-slate-400 uppercase text-xs">
+                Tiêu chí
+              </th>
+              <th class="px-8 py-4 text-left font-bold text-blue-400 uppercase text-xs">
+                Appium
+              </th>
+              <th class="px-8 py-4 text-left font-bold text-red-400 uppercase text-xs">
+                Native (Espresso/XC)
+              </th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-white/5">
+            <tr>
+              <td class="px-8 py-4 font-medium text-white">Ngôn ngữ</td>
+              <td class="px-8 py-4 text-slate-300">
+                Đa dạng (Java, Python...)
+              </td>
+              <td class="px-8 py-4 text-slate-300">Đặc thù (Kotlin/Swift)</td>
+            </tr>
+            <tr>
+              <td class="px-8 py-4 font-medium text-white">Tốc độ</td>
+              <td class="px-8 py-4 text-amber-400">Trung bình</td>
+              <td class="px-8 py-4 text-green-400 font-bold">Rất nhanh</td>
+            </tr>
+            <tr>
+              <td class="px-8 py-4 font-medium text-white">
+                Truy cập Source
+              </td>
+              <td class="px-8 py-4 text-green-400 font-bold">
+                Black-box (Không cần)
+              </td>
+              <td class="px-8 py-4 text-slate-400">White-box (Cần)</td>
+            </tr>
+            <tr>
+              <td class="px-8 py-4 font-medium text-white">Kiến trúc</td>
+              <td class="px-8 py-4 text-slate-300">Client-Server</td>
+              <td class="px-8 py-4 text-slate-300">
+                Chạy trực tiếp trên App
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- SLIDE 11: Hạn chế / Gotchas (MỚI) -->
+    <div id="slide-11"
+      class="slide w-full max-w-5xl p-8 hidden absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
+      <div class="flex items-center mb-8">
+        <h2 class="text-5xl font-extrabold text-white mr-3">
+          4 Rủi Ro Thường Gặp
+        </h2>
+        <span
+          class="bg-red-500/20 text-red-400 text-xs font-bold px-3 py-1 rounded-full border border-red-500/30">GOTCHAS</span>
+      </div>
+      <div class="grid grid-cols-2 gap-5">
+        <div class="glass p-5 rounded-xl card-hover border-l-4 border-red-500">
+          <h3 class="font-bold text-red-400 mb-2 flex items-center gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+              stroke="currentColor" class="w-5 h-5 flex-shrink-0">
+              <path stroke-linecap="round" stroke-linejoin="round"
+                d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+            </svg>
+            Android API Level
+          </h3>
           <p class="text-slate-300 text-base">
-            Giao diện đồ họa để soi cấu trúc UI của app, tìm các mã định danh
-            (ID, Xpath, Accessibility ID) nhằm viết code chính xác.
+            UIAutomator2: không hỗ trợ API < 17 (Android 4.2). </p>
+        </div>
+        <div class="glass p-5 rounded-xl card-hover border-l-4 border-amber-500">
+          <h3 class="font-bold text-amber-400 mb-2 flex items-center gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+              stroke="currentColor" class="w-5 h-5 flex-shrink-0">
+              <path stroke-linecap="round" stroke-linejoin="round"
+                d="M8.625 12a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H8.25m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H12m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0h-.375M21 12c0 4.556-4.03 8.25-9 8.25a9.764 9.764 0 01-2.555-.337A5.972 5.972 0 015.41 20.97a5.969 5.969 0 01-.474-.065 4.48 4.48 0 00.978-2.025c.09-.457-.133-.901-.467-1.226C3.93 16.178 3 14.189 3 12c0-4.556 4.03-8.25 9-8.25s9 3.694 9 8.25z" />
+            </svg>
+            Thông báo Toast
+          </h3>
+          <p class="text-slate-300 text-base">
+            Bắt Toast Message không ổn định, nhiều hạn chế.
+          </p>
+        </div>
+        <div class="glass p-5 rounded-xl card-hover border-l-4 border-purple-500">
+          <h3 class="font-bold text-purple-400 mb-2 flex items-center gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+              stroke="currentColor" class="w-5 h-5 flex-shrink-0">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            Hiệu suất iOS
+          </h3>
+          <p class="text-slate-300 text-base">
+            iOS Simulator chậm hơn Android Emulator.
+          </p>
+        </div>
+        <div class="glass p-5 rounded-xl card-hover border-l-4 border-slate-400">
+          <h3 class="font-bold text-slate-300 mb-2 flex items-center gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+              stroke="currentColor" class="w-5 h-5 flex-shrink-0">
+              <path stroke-linecap="round" stroke-linejoin="round"
+                d="M6 20.25h12m-7.5-3v3m3-3v3m-10.125-3h17.25c.621 0 1.125-.504 1.125-1.125V4.875c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125z" />
+            </svg>
+            Giao diện phức tạp
+          </h3>
+          <p class="text-slate-300 text-base">
+            Game, AR/VR khó định vị element chính xác.
           </p>
         </div>
       </div>
+    </div>
 
-      <!-- SLIDE 13: Installation Steps -->
-      <div id="slide-13" class="slide w-full max-w-5xl p-8 hidden">
-        <h2 class="text-5xl font-extrabold text-white mb-8">
-          Các Bước Cài Đặt (Terminal)
-        </h2>
-        <div
-          class="bg-slate-900 border border-slate-700 text-slate-100 p-8 rounded-2xl font-mono text-lg shadow-2xl leading-relaxed"
-        >
-          <p class="text-slate-500 mb-2"># 1. Cài đặt Server</p>
-          <p class="text-green-400 mb-6">$ npm install -g appium</p>
-          <p class="text-slate-500 mb-2"># 2. Cài đặt Driver (Android)</p>
-          <p class="text-green-400 mb-6">
-            $ appium driver install uiautomator2
-          </p>
-          <p class="text-slate-500 mb-2"># 3. Khởi chạy Server</p>
-          <p class="text-green-400 mb-6">$ appium</p>
-          <div
-            class="text-amber-500 text-sm italic mt-6 border-t border-slate-700 pt-4 flex items-center"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke-width="1.5"
-              stroke="currentColor"
-              class="w-5 h-5 mr-1 flex-shrink-0"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"
-              />
-            </svg>
-            <span
-              >Lưu ý: Thiết lập biến môi trường JAVA_HOME và ANDROID_HOME!</span
-            >
-          </div>
-        </div>
+    <!-- SLIDE 12: Cài đặt + Bảng Android vs iOS -->
+    <div id="slide-12"
+      class="slide w-full max-w-6xl p-6 hidden absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
+      <h2 class="text-4xl font-extrabold text-white mb-2">
+        Sẵn Sàng Trong 3 Bước
+      </h2>
+      <p class="text-slate-400 text-base mb-5">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
+          class="w-4 h-4 inline-block mr-1 text-amber-400">
+          <path stroke-linecap="round" stroke-linejoin="round"
+            d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+        </svg>
+        Kiểm thử iOS <strong class="text-red-400">chỉ có thể</strong> thực
+        hiện trên macOS.
+      </p>
+      <div class="glass rounded-2xl overflow-hidden text-sm mb-5">
+        <table class="min-w-full divide-y divide-white/10">
+          <thead class="bg-white/10">
+            <tr>
+              <th class="px-5 py-3 text-left font-bold text-slate-400 uppercase text-xs">
+                Công cụ
+              </th>
+              <th class="px-5 py-3 text-left font-bold text-green-400 uppercase text-xs">
+                Android
+              </th>
+              <th class="px-5 py-3 text-left font-bold text-slate-300 uppercase text-xs">
+                iOS
+              </th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-white/5">
+            <tr>
+              <td class="px-5 py-2.5 font-medium text-white">
+                Java JDK & Node.js
+              </td>
+              <td class="px-5 py-2.5 text-green-400">Bắt buộc</td>
+              <td class="px-5 py-2.5 text-green-400">Bắt buộc</td>
+            </tr>
+            <tr>
+              <td class="px-5 py-2.5 font-medium text-white">Hệ điều hành</td>
+              <td class="px-5 py-2.5 text-slate-300">Win / macOS / Linux</td>
+              <td class="px-5 py-2.5 text-red-400 font-bold">Chỉ macOS</td>
+            </tr>
+            <tr>
+              <td class="px-5 py-2.5 font-medium text-white">SDK</td>
+              <td class="px-5 py-2.5 text-slate-300">
+                Android SDK (Android Studio)
+              </td>
+              <td class="px-5 py-2.5 text-slate-300">iOS SDK (Xcode)</td>
+            </tr>
+            <tr>
+              <td class="px-5 py-2.5 font-medium text-white">Giả lập</td>
+              <td class="px-5 py-2.5 text-slate-300">
+                Emulator (AVD/Genymotion)
+              </td>
+              <td class="px-5 py-2.5 text-slate-300">Simulator (Xcode)</td>
+            </tr>
+            <tr>
+              <td class="px-5 py-2.5 font-medium text-white">
+                Thiết bị thật
+              </td>
+              <td class="px-5 py-2.5 text-slate-300">
+                Cần bật USB Debugging
+              </td>
+              <td class="px-5 py-2.5 text-slate-300">
+                Cần Apple Dev Account
+              </td>
+            </tr>
+          </tbody>
+        </table>
       </div>
-
-      <!-- SLIDE 14: Live Demo -->
-      <div id="slide-14" class="slide w-full max-w-6xl p-8 hidden">
-        <div class="flex flex-col items-center justify-center h-full">
-          <h2 class="text-6xl font-extrabold text-white mb-6">Live Demo</h2>
-          <div class="text-blue-400 animate-pulse mb-6">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke-width="1.5"
-              stroke="currentColor"
-              class="w-40 h-40"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.348a1.125 1.125 0 010 1.971l-11.54 6.347a1.125 1.125 0 01-1.667-.985V5.653z"
-              />
-            </svg>
-          </div>
-          <p class="text-xl text-slate-400">Testing Android Emulator</p>
-        </div>
-      </div>
-
-      <!-- SLIDE 15: Thank You -->
-      <div id="slide-15" class="slide w-full max-w-5xl p-8 hidden text-center">
-        <h2 class="text-6xl font-extrabold text-white mb-10 animate-bounce">
-          Thank You!
-        </h2>
-        <div class="flex justify-center mb-8">
-          <div class="text-blue-400">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke-width="1.5"
-              stroke="currentColor"
-              class="w-28 h-28"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z"
-              />
-            </svg>
-          </div>
-        </div>
-        <h3 class="text-4xl font-bold text-blue-400 mb-6">Q & A</h3>
-        <p class="text-xl text-slate-400 mb-4">
-          Mọi thắc mắc mời mọi người bình luận, nhóm sẽ trả lời trong thời gian
-          sớm nhất.
+      <div class="glass p-4 rounded-xl border-l-4 border-blue-500">
+        <h4 class="font-bold text-blue-400 text-sm mb-1 flex items-center gap-2">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+            stroke="currentColor" class="w-5 h-5 flex-shrink-0">
+            <path stroke-linecap="round" stroke-linejoin="round"
+              d="M12 18v-5.25m0 0a6.01 6.01 0 001.5-.189m-1.5.189a6.01 6.01 0 01-1.5-.189m3.75 7.478a12.06 12.06 0 01-4.5 0m3.75 2.383a14.406 14.406 0 01-3 0M14.25 18v-.192c0-.983.658-1.823 1.508-2.316a7.5 7.5 0 10-7.517 0c.85.493 1.509 1.333 1.509 2.316V18" />
+          </svg>
+          Appium Inspector — Công cụ "phải có"
+        </h4>
+        <p class="text-slate-300 text-base">
+          Giao diện đồ họa để soi cấu trúc UI của app, tìm các mã định danh
+          (ID, Xpath, Accessibility ID) nhằm viết code chính xác.
         </p>
-        <div class="mt-10 text-slate-500">
-          <p class="font-bold">HUTECH University</p>
-          <p>Khoa Công Nghệ Thông Tin</p>
+      </div>
+    </div>
+
+    <!-- SLIDE 13: Installation Steps -->
+    <div id="slide-13"
+      class="slide w-full max-w-5xl p-8 hidden absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
+      <h2 class="text-5xl font-extrabold text-white mb-8">
+        Các Bước Cài Đặt (Terminal)
+      </h2>
+      <div
+        class="bg-slate-900 border border-slate-700 text-slate-100 p-8 rounded-2xl font-mono text-lg shadow-2xl leading-relaxed">
+        <p class="text-slate-500 mb-2"># 1. Cài đặt Server</p>
+        <p class="text-green-400 mb-6 typewriter-effect has-typewriter"
+          style="animation-duration: 2s; animation-delay: 1s, 0s;">$ npm install -g appium</p>
+        <p class="text-slate-500 mb-2"># 2. Cài đặt Driver (Android)</p>
+        <p class="text-green-400 mb-6 typewriter-effect has-typewriter"
+          style="animation-duration: 2.5s; animation-delay: 4.5s, 0s;">
+          $ appium driver install uiautomator2
+        </p>
+        <p class="text-slate-500 mb-2"># 3. Khởi chạy Server</p>
+        <p class="text-green-400 mb-6 typewriter-effect has-typewriter"
+          style="animation-duration: 1.5s; animation-delay: 9s, 0s;">$ appium</p>
+        <div class="text-amber-500 text-sm italic mt-6 border-t border-slate-700 pt-4 flex items-center">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+            stroke="currentColor" class="w-5 h-5 mr-1 flex-shrink-0">
+            <path stroke-linecap="round" stroke-linejoin="round"
+              d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+          </svg>
+          <span>Lưu ý: Thiết lập biến môi trường JAVA_HOME và ANDROID_HOME!</span>
         </div>
       </div>
-    </main>
+    </div>
 
-    <script>
-      const historyData = [
-        {
-          year: "2011",
-          title: "Khởi đầu",
-          desc: 'Dan Cuellar tạo ra "iOSAuto" bằng C#.',
-        },
-        {
-          year: "2012",
-          title: "Open Source",
-          desc: 'Jason Huggins khuyến khích mở mã nguồn. Tên "Appium" ra đời.',
-        },
-        {
-          year: "2013",
-          title: "Sauce Labs",
-          desc: "Standard hóa theo Selenium WebDriver.",
-        },
-        {
-          year: "2014",
-          title: "Phổ biến",
-          desc: "Trở thành công cụ số 1 cho Mobile Automation.",
-        },
-        {
-          year: "2023",
-          title: "Appium 2.0",
-          desc: "Kiến trúc Driver/Plugin tách biệt. Chính thức Release.",
-        },
-      ];
+    <!-- SLIDE 14: Live Demo -->
+    <div id="slide-14"
+      class="slide w-full max-w-6xl p-8 hidden absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 has-typewriter">
+      <div class="flex flex-col items-center justify-center h-full">
+        <h2 class="text-6xl font-extrabold text-white mb-6 typewriter-effect" style="animation-duration: 1.5s;">Live
+          Demo</h2>
+        <div class="text-blue-400 animate-pulse mb-6">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+            stroke="currentColor" class="w-40 h-40">
+            <path stroke-linecap="round" stroke-linejoin="round"
+              d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.348a1.125 1.125 0 010 1.971l-11.54 6.347a1.125 1.125 0 01-1.667-.985V5.653z" />
+          </svg>
+        </div>
+        <p class="text-xl text-slate-400">Testing Android Emulator</p>
+      </div>
+    </div>
 
-      const archDetails = {
-        client: {
-          title: "Appium Client (Test Scripts)",
-          desc: "Nơi bạn viết kịch bản test. Dùng thư viện Appium Client (Java/Python...) để gửi lệnh HTTP tới Server.",
-        },
-        server: {
-          title: 'Appium Server ("Trái tim")',
-          desc: "Trung gian nhận lệnh JSON, hiểu và chuyển tiếp cho Driver phù hợp. Chạy trên Node.js.",
-        },
-        device: {
-          title: "Device / Emulator",
-          desc: "Đối tượng thực thi. Nhận lệnh dịch từ Server và thực hiện hành động trên ứng dụng. Android Emulator, iPhone thật, iOS Simulator.",
-        },
-      };
+    <!-- SLIDE 15: Thank You -->
+    <div id="slide-15"
+      class="slide w-full max-w-5xl p-8 hidden text-center absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 has-typewriter">
+      <h2 class="text-6xl font-extrabold text-white mb-10 typewriter-effect" style="animation-duration: 2s;">
+        Thank You!
+      </h2>
+      <div class="flex justify-center mb-8">
+        <div class="text-blue-400">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+            stroke="currentColor" class="w-28 h-28">
+            <path stroke-linecap="round" stroke-linejoin="round"
+              d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
+          </svg>
+        </div>
+      </div>
+      <h3 class="text-4xl font-bold text-blue-400 mb-6">Q & A</h3>
+      <p class="text-xl text-slate-400 mb-4">
+        Mọi thắc mắc mời mọi người bình luận, nhóm sẽ trả lời trong thời gian
+        sớm nhất.
+      </p>
+      <div class="mt-10 text-slate-500">
+        <p class="font-bold">HUTECH University</p>
+        <p>Khoa Công Nghệ Thông Tin</p>
+      </div>
+    </div>
+  </main>
 
-      document.addEventListener("DOMContentLoaded", () => {
-        renderHistory();
-        initCharts();
-        showSlide(0);
-        document.addEventListener("keydown", (e) => {
-          if (e.key === "ArrowRight" || e.key === " ") {
-            e.preventDefault();
-            navigateSlide(1);
-          }
-          if (e.key === "ArrowLeft") navigateSlide(-1);
-        });
+  <script>
+    const historyData = [
+      {
+        year: "2011",
+        title: "Khởi đầu",
+        desc: 'Dan Cuellar tạo ra "iOSAuto" bằng C#.',
+      },
+      {
+        year: "2012",
+        title: "Open Source",
+        desc: 'Jason Huggins khuyến khích mở mã nguồn. Tên "Appium" ra đời.',
+      },
+      {
+        year: "2013",
+        title: "Sauce Labs",
+        desc: "Standard hóa theo Selenium WebDriver.",
+      },
+      {
+        year: "2014",
+        title: "Phổ biến",
+        desc: "Trở thành công cụ số 1 cho Mobile Automation.",
+      },
+      {
+        year: "2023",
+        title: "Appium 2.0",
+        desc: "Kiến trúc Driver/Plugin tách biệt. Chính thức Release.",
+      },
+    ];
+
+    const archDetails = {
+      client: {
+        title: "Appium Client (Test Scripts)",
+        desc: "Nơi bạn viết kịch bản test. Dùng thư viện Appium Client (Java/Python...) để gửi lệnh HTTP tới Server.",
+      },
+      server: {
+        title: 'Appium Server ("Trái tim")',
+        desc: "Trung gian nhận lệnh JSON, hiểu và chuyển tiếp cho Driver phù hợp. Chạy trên Node.js.",
+      },
+      device: {
+        title: "Device / Emulator",
+        desc: "Đối tượng thực thi. Nhận lệnh dịch từ Server và thực hiện hành động trên ứng dụng. Android Emulator, iPhone thật, iOS Simulator.",
+      },
+    };
+
+    document.addEventListener("DOMContentLoaded", () => {
+      renderHistory();
+      initCharts();
+      showSlide(0, 1);
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "ArrowRight" || e.key === " ") {
+          e.preventDefault();
+          navigateSlide(1);
+        }
+        if (e.key === "ArrowLeft") navigateSlide(-1);
       });
+    });
 
-      const totalSlides = 16;
-      let currentSlideIndex = 0;
+    const totalSlides = 16;
+    let currentSlideIndex = 0;
 
-      function navigateSlide(direction) {
-        const newIndex = currentSlideIndex + direction;
-        if (newIndex >= 0 && newIndex < totalSlides) showSlide(newIndex);
+    function navigateSlide(direction) {
+      const newIndex = currentSlideIndex + direction;
+      if (newIndex >= 0 && newIndex < totalSlides) showSlide(newIndex, direction);
+    }
+
+    function updateNavButtons() {
+      const prevBtn = document.getElementById("btn-prev");
+      const nextBtn = document.getElementById("btn-next");
+      if (prevBtn) {
+        const isFirst = currentSlideIndex === 0;
+        prevBtn.disabled = isFirst;
+        prevBtn.style.opacity = isFirst ? "0.2" : "1";
+        prevBtn.style.pointerEvents = isFirst ? "none" : "auto";
       }
-
-      function updateNavButtons() {
-        const prevBtn = document.getElementById("btn-prev");
-        const nextBtn = document.getElementById("btn-next");
-        if (prevBtn) {
-          const isFirst = currentSlideIndex === 0;
-          prevBtn.disabled = isFirst;
-          prevBtn.style.opacity = isFirst ? "0.2" : "1";
-          prevBtn.style.pointerEvents = isFirst ? "none" : "auto";
-        }
-        if (nextBtn) {
-          const isLast = currentSlideIndex === totalSlides - 1;
-          nextBtn.disabled = isLast;
-          nextBtn.style.opacity = isLast ? "0.2" : "1";
-          nextBtn.style.pointerEvents = isLast ? "none" : "auto";
-          if (isLast) {
-            nextBtn.classList.remove("glow");
-          } else {
-            nextBtn.classList.add("glow");
-          }
+      if (nextBtn) {
+        const isLast = currentSlideIndex === totalSlides - 1;
+        nextBtn.disabled = isLast;
+        nextBtn.style.opacity = isLast ? "0.2" : "1";
+        nextBtn.style.pointerEvents = isLast ? "none" : "auto";
+        if (isLast) {
+          nextBtn.classList.remove("glow");
+        } else {
+          nextBtn.classList.add("glow");
         }
       }
+    }
 
-      function showSlide(index) {
-        currentSlideIndex = index;
-        const currentNum = document.getElementById("current-slide-num");
-        const totalNum = document.getElementById("total-slide-num");
-        if (currentNum) currentNum.textContent = index + 1;
-        if (totalNum) totalNum.textContent = totalSlides;
-        document.querySelectorAll(".slide").forEach((el) => {
-          el.classList.add("hidden");
-          el.classList.remove("animate-fadeIn");
-        });
-        const activeSlide = document.getElementById(`slide-${index}`);
-        if (activeSlide) {
-          activeSlide.classList.remove("hidden");
-          void activeSlide.offsetWidth;
-          activeSlide.classList.add("animate-fadeIn");
+    function showSlide(index, direction) {
+      currentSlideIndex = index;
+      const currentNum = document.getElementById("current-slide-num");
+      const totalNum = document.getElementById("total-slide-num");
+      if (currentNum) currentNum.textContent = index + 1;
+      if (totalNum) totalNum.textContent = totalSlides;
+
+      const animClass = direction > 0 ? "animate-3d-in-next" : "animate-3d-in-prev";
+
+      document.querySelectorAll(".slide").forEach((el) => {
+        el.classList.add("hidden");
+        el.classList.remove("animate-3d-in-next", "animate-3d-in-prev");
+      });
+      const activeSlide = document.getElementById(`slide-${index}`);
+      if (activeSlide) {
+        activeSlide.classList.remove("hidden");
+        void activeSlide.offsetWidth; // Trigger reflow
+        activeSlide.classList.add(animClass);
+
+        // Reset Typewriter effect on active slide if it exists
+        const typewriters = activeSlide.querySelectorAll(".typewriter-effect");
+        if (typewriters.length > 0) {
+          typewriters.forEach(tw => {
+            tw.classList.remove("typewriter-effect");
+            void tw.offsetWidth; // force reflow
+            tw.classList.add("typewriter-effect");
+          });
         }
-        updateNavButtons();
       }
+      updateNavButtons();
+    }
 
-      function renderHistory() {
-        const container = document.getElementById("history-container");
-        let html = "";
-        historyData.forEach((item) => {
-          html += `<div class="timeline-point relative pl-8 pb-6 border-l-2 border-blue-500/30 last:border-0 last:pb-0">
+    function renderHistory() {
+      const container = document.getElementById("history-container");
+      let html = "";
+      historyData.forEach((item) => {
+        html += `<div class="timeline-point relative pl-8 pb-6 border-l-2 border-blue-500/30 last:border-0 last:pb-0">
                     <div class="timeline-marker absolute -left-[9px] top-0 w-4 h-4 rounded-full bg-blue-400 border-2 border-slate-900 shadow-lg shadow-blue-400/30"></div>
                     <div><span class="text-xs font-bold text-blue-400">${item.year}</span>
                     <h4 class="font-bold text-white text-base">${item.title}</h4>
                     <p class="text-slate-400 text-sm mt-1">${item.desc}</p></div></div>`;
-        });
-        if (container) container.innerHTML = html;
-      }
+      });
+      if (container) container.innerHTML = html;
+    }
 
-      function showArchDetail(part) {
-        const panel = document.getElementById("arch-detail-panel");
-        const title = document.getElementById("arch-detail-title");
-        const desc = document.getElementById("arch-detail-desc");
-        const info = archDetails[part];
-        title.textContent = info.title;
-        desc.textContent = info.desc;
-        panel.classList.remove("hidden");
-        panel.classList.add("animate-slideLeft");
-        setTimeout(() => panel.classList.remove("animate-slideLeft"), 400);
-      }
+    function showArchDetail(part) {
+      const panel = document.getElementById("arch-detail-panel");
+      const title = document.getElementById("arch-detail-title");
+      const desc = document.getElementById("arch-detail-desc");
+      const info = archDetails[part];
+      title.textContent = info.title;
+      desc.textContent = info.desc;
+      panel.classList.remove("hidden", "animate-3d-in-next", "animate-3d-in-prev");
+      void panel.offsetWidth;
+      // Using the same next animation for the panel
+      panel.classList.add("animate-3d-in-next");
+      setTimeout(() => panel.classList.remove("animate-3d-in-next"), 500);
+    }
 
-      function initCharts() {
-        const canvas = document.getElementById("comparisonChart");
-        if (!canvas) return;
-        const ctx = canvas.getContext("2d");
-        new Chart(ctx, {
-          type: "radar",
-          data: {
-            labels: [
-              "Tốc độ",
-              "Dễ cài đặt",
-              "Đa nền tảng",
-              "Hỗ trợ ngôn ngữ",
-              "Truy cập sâu",
-              "Cộng đồng",
-            ],
-            datasets: [
-              {
-                label: "Appium",
-                data: [6, 5, 10, 10, 6, 9],
-                fill: true,
-                backgroundColor: "rgba(59, 130, 246, 0.15)",
-                borderColor: "rgb(59, 130, 246)",
-                pointBackgroundColor: "rgb(59, 130, 246)",
-                pointBorderColor: "#1e293b",
-              },
-              {
-                label: "Native (Espresso)",
-                data: [10, 8, 2, 3, 10, 7],
-                fill: true,
-                backgroundColor: "rgba(239, 68, 68, 0.15)",
-                borderColor: "rgb(239, 68, 68)",
-                pointBackgroundColor: "rgb(239, 68, 68)",
-                pointBorderColor: "#1e293b",
-              },
-            ],
-          },
-          options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            scales: {
-              r: {
-                angleLines: { color: "rgba(255,255,255,0.1)" },
-                grid: { color: "rgba(255,255,255,0.08)" },
-                pointLabels: { color: "#94a3b8", font: { size: 13 } },
-                suggestedMin: 0,
-                suggestedMax: 10,
-                ticks: { display: false, stepSize: 2 },
-              },
+    function initCharts() {
+      const canvas = document.getElementById("comparisonChart");
+      if (!canvas) return;
+      const ctx = canvas.getContext("2d");
+      new Chart(ctx, {
+        type: "radar",
+        data: {
+          labels: [
+            "Tốc độ",
+            "Dễ cài đặt",
+            "Đa nền tảng",
+            "Hỗ trợ ngôn ngữ",
+            "Truy cập sâu",
+            "Cộng đồng",
+          ],
+          datasets: [
+            {
+              label: "Appium",
+              data: [6, 5, 10, 10, 6, 9],
+              fill: true,
+              backgroundColor: "rgba(59, 130, 246, 0.15)",
+              borderColor: "rgb(59, 130, 246)",
+              pointBackgroundColor: "rgb(59, 130, 246)",
+              pointBorderColor: "#1e293b",
             },
-            plugins: {
-              legend: {
-                position: "bottom",
-                labels: { color: "#94a3b8", font: { size: 14 } },
-              },
+            {
+              label: "Native (Espresso)",
+              data: [10, 8, 2, 3, 10, 7],
+              fill: true,
+              backgroundColor: "rgba(239, 68, 68, 0.15)",
+              borderColor: "rgb(239, 68, 68)",
+              pointBackgroundColor: "rgb(239, 68, 68)",
+              pointBorderColor: "#1e293b",
+            },
+          ],
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            r: {
+              angleLines: { color: "rgba(255,255,255,0.1)" },
+              grid: { color: "rgba(255,255,255,0.08)" },
+              pointLabels: { color: "#94a3b8", font: { size: 13 } },
+              suggestedMin: 0,
+              suggestedMax: 10,
+              ticks: { display: false, stepSize: 2 },
             },
           },
-        });
-      }
-    </script>
-  </body>
+          plugins: {
+            legend: {
+              position: "bottom",
+              labels: { color: "#94a3b8", font: { size: 14 } },
+            },
+          },
+        },
+      });
+    }
+  </script>
+</body>
+
 </html>
